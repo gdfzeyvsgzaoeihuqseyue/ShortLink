@@ -95,26 +95,26 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="link in links" :key="link.id" class="border-b border-gray-100 hover:bg-gray-50">
+              <tr v-for="link in linksStore.links" :key="link.id" class="border-b border-gray-100 hover:bg-gray-50">
                 <td class="py-4 px-4">
-                  <div class="max-w-xs truncate" :title="link.originalUrl">
-                    {{ link.originalUrl }}
+                  <div class="max-w-xs truncate" :title="link.longUrl">
+                    {{ link.longUrl }}
                   </div>
                 </td>
                 <td class="py-4 px-4">
-                  <a :href="link.shortUrl" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium">
-                    {{ link.shortUrl }}
+                  <a :href="link.shortLink" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium">
+                    {{ link.shortLink }}
                   </a>
                 </td>
                 <td class="py-4 px-4">
-                  <span class="font-semibold">{{ link.clicks }}</span>
+                  <span class="font-semibold">{{ link.clicks || 0 }}</span>
                 </td>
                 <td class="py-4 px-4 text-gray-600">
                   {{ formatDate(link.createdAt) }}
                 </td>
                 <td class="py-4 px-4">
                   <div class="flex space-x-2">
-                    <button @click="copyLink(link.shortUrl)" class="text-primary-600 hover:text-primary-700">
+                    <button @click="copyLink(link.shortLink)" class="text-primary-600 hover:text-primary-700">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
@@ -124,6 +124,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </button>
+                    <NuxtLink :to="`/dashboard/links/${link.id}`" class="text-gray-600 hover:text-gray-700">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </NuxtLink>
                   </div>
                 </td>
               </tr>
@@ -131,15 +136,63 @@
           </table>
         </div>
 
-        <div v-if="links.length === 0" class="text-center py-12">
+        <!-- Loading state -->
+        <div v-if="linksStore.loading && linksStore.links.length === 0" class="text-center py-12">
+          <svg class="animate-spin w-8 h-8 text-primary-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-gray-500">Chargement des liens...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div v-else-if="linksStore.links.length === 0" class="text-center py-12">
           <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
           <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun lien trouvé</h3>
           <p class="text-gray-500 mb-4">Commencez par créer votre premier lien raccourci</p>
-          <button class="btn-primary">
+          <button @click="$el.querySelector('input[type=url]')?.focus()" class="btn-primary">
             Créer mon premier lien
           </button>
+        </div>
+
+        <!-- Error state -->
+        <div v-if="linksStore.error" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <div class="flex justify-between items-start">
+            <p class="text-red-700 font-medium">{{ linksStore.error }}</p>
+            <button @click="linksStore.clearError" class="text-red-500 hover:text-red-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="linksStore.pagination.totalPages > 1" class="mt-6 flex justify-between items-center">
+          <div class="text-sm text-gray-500">
+            Affichage de {{ linksStore.pagination.linksOnPage }} sur {{ linksStore.pagination.totalLinks }} liens
+          </div>
+          <div class="flex space-x-2">
+            <button 
+              @click="linksStore.fetchLinks(linksStore.pagination.currentPage - 1)"
+              :disabled="linksStore.pagination.currentPage <= 1 || linksStore.loading"
+              class="px-3 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Précédent
+            </button>
+            <span class="px-3 py-1 text-sm text-gray-700">
+              Page {{ linksStore.pagination.currentPage }} sur {{ linksStore.pagination.totalPages }}
+            </span>
+            <button 
+              @click="linksStore.fetchLinks(linksStore.pagination.currentPage + 1)"
+              :disabled="linksStore.pagination.currentPage >= linksStore.pagination.totalPages || linksStore.loading"
+              class="px-3 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Suivant
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -147,35 +200,33 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+const linksStore = useLinksStore()
 
-const links = ref([])
+// Récupérer les données au montage du composant
+onMounted(async () => {
+  await linksStore.fetchLinks()
+})
 
-const totalLinks = computed(() => links.value.length)
-const totalClicks = computed(() => links.value.reduce((sum, link) => sum + link.clicks, 0))
+// Computed properties basées sur le store
+const links = computed(() => linksStore.links)
+const totalLinks = computed(() => linksStore.stats.totalLinks)
+const totalClicks = computed(() => linksStore.stats.totalClicks)
 const todayClicks = computed(() => {
-  // Simulation des clics du jour
-  return Math.floor(Math.random() * 50)
+  return linksStore.stats.clicksToday
 })
-const activeLinks = computed(() => links.value.filter(link => link.clicks > 0).length)
-
-onMounted(() => {
-  loadLinks()
+const activeLinks = computed(() => {
+  return linksStore.links.filter(link => (link.clicks || 0) > 0).length
 })
 
-const loadLinks = () => {
-  const savedLinks = localStorage.getItem('shortenedLinks')
-  if (savedLinks) {
-    links.value = JSON.parse(savedLinks)
-    // Simulation de clics aléatoires pour la démo
-    links.value.forEach(link => {
-      link.clicks = Math.floor(Math.random() * 100)
-    })
-  }
+// Actions
+const refreshLinks = async () => {
+  await linksStore.refreshLinks()
 }
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('fr-FR')
+  // Convertir le timestamp en date si nécessaire
+  const date = typeof dateString === 'number' ? new Date(dateString) : new Date(dateString)
+  return date.toLocaleDateString('fr-FR')
 }
 
 const copyLink = async (url) => {
@@ -188,6 +239,6 @@ const copyLink = async (url) => {
 }
 
 const viewAnalytics = (link) => {
-  alert(`Analytics pour ${link.shortUrl}\n\nClics: ${link.clicks}\nCréé le: ${formatDate(link.createdAt)}`)
+  alert(`Analytics pour ${link.shortLink}\n\nClics: ${link.clicks || 0}\nCréé le: ${formatDate(link.createdAt)}`)
 }
 </script>

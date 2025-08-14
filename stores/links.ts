@@ -112,7 +112,13 @@ export const useLinksStore = defineStore('links', () => {
       return response.data
     } catch (err: any) {
       console.error('Erreur lors de la récupération du lien:', err)
-      error.value = err.data?.message || 'Lien non trouvé'
+      
+      if (err.status === 404) {
+        error.value = 'Lien non trouvé'
+      } else {
+        error.value = err.data?.message || 'Une erreur est survenue lors de la récupération du lien'
+      }
+      
       return null
     } finally {
       loading.value = false
