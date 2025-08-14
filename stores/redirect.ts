@@ -28,7 +28,9 @@ export const useRedirectStore = defineStore('redirect', () => {
         return response.redirectUrl
       }
 
-      return null
+      error.value = response.message || 'URL de redirection non fournie par le serveur.';
+      return null;
+      
     } catch (err: any) {
       console.error('Erreur lors de la redirection:', err)
       
