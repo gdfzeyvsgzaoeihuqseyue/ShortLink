@@ -18,7 +18,7 @@ export const useRedirectStore = defineStore('redirect', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<RedirectResponse>(`/shortlinks/${shortCode}`, {
+      const response = await useApiFetch<RedirectResponse>(`/shortlinks/redirect/${shortCode}`, {
         method: 'GET'
       });
 
