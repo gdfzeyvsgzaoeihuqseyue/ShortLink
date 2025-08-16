@@ -12,10 +12,14 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
+    "@nuxtjs/robots": "^5.4.0",
+    "@nuxtjs/sitemap": "^7.4.3",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
+    "@tabler/icons-vue": "^3.34.1",
     "axios": "^1.11.0",
     "nuxt": "^3.13.0",
+    "nuxt-gtag": "^3.0.3",
     "pinia": "^3.0.3"
   }
 }

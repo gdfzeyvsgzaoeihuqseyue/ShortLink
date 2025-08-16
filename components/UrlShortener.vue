@@ -3,7 +3,7 @@
     <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
       Raccourcissez votre lien instantanément
     </h2>
-    
+
     <form @submit.prevent="shortenUrl" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -20,7 +20,7 @@
           />
         </div>
       </div>
-      
+
       <button
         type="submit"
         :disabled="linksStore.loading || !longUrl"
@@ -36,7 +36,7 @@
         <span v-else>Raccourcir le lien</span>
       </button>
     </form>
-    
+
     <!-- Résultat -->
     <div v-if="shortLink" class="mt-8 p-6 bg-success-50 rounded-xl border border-success-200">
       <h3 class="text-lg font-semibold text-success-800 mb-4">
@@ -60,63 +60,86 @@
             </button>
           </div>
         </div>
-        
+
         <div class="text-sm text-success-600">
           <span class="font-medium">Clics:</span> {{ shortLink.clicks || 0 }}
         </div>
-      </div>
-    </div>
-
-    <!-- Erreur -->
-    <div v-if="linksStore.error" class="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-      <div class="flex justify-between items-start">
-        <p class="text-red-700 font-medium">{{ linksStore.error }}</p>
-        <button @click="linksStore.clearError" class="text-red-500 hover:text-red-700">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const linksStore = useLinksStore()
+import { ref, watch, defineEmits } from 'vue'; 
+import { useLinksStore } from '~/stores/links';
 
-const longUrl = ref('')
-const shortLink = ref(null)
-const copied = ref(false)
-const shortUrlInput = ref(null)
+const emit = defineEmits(['linkCreated']);
+
+const linksStore = useLinksStore();
+
+const longUrl = ref('');
+const shortLink = ref(null);
+const copied = ref(false);
+const shortUrlInput = ref(null);
+
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error' | 'info'>('success');
+const showNotification = ref(false);
+let notificationTimeout = null;
+
+const showFloatingNotification = (message, type = 'success') => {
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+
+  notificationTimeout = setTimeout(() => {
+    closeNotification();
+  }, 3000);
+};
+
+const closeNotification = () => {
+  showNotification.value = false;
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+};
+
+watch(() => linksStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
 
 const shortenUrl = async () => {
-  linksStore.clearError()
-  shortLink.value = null
-  
-  const result = await linksStore.createShortLink(longUrl.value)
-  
+  linksStore.clearError();
+  shortLink.value = null;
+
+  const result = await linksStore.createShortLink(longUrl.value);
+
   if (result) {
-    shortLink.value = result
-    // Optionnel: vider le champ après succès
-    // longUrl.value = ''
+    shortLink.value = result;
+    showFloatingNotification('Lien raccourci avec succès !', 'success');
+    emit('linkCreated', result); // Émet l'événement 'linkCreated' avec le nouveau lien
+    // longUrl.value = ''; // Optionnel: réinitialiser le champ après succès
   }
-}
+};
 
 const copyToClipboard = async () => {
+  if (!shortLink.value) return;
+
   try {
-    await navigator.clipboard.writeText(shortLink.value.shortLink)
-    copied.value = true
+    await navigator.clipboard.writeText(shortLink.value.shortLink);
+    copied.value = true;
+    showFloatingNotification('Lien copié dans le presse-papiers !', 'success');
     setTimeout(() => {
-      copied.value = false
-    }, 2000)
+      copied.value = false;
+    }, 2000);
   } catch (err) {
-    // Fallback pour les anciens navigateurs
-    shortUrlInput.value?.select()
-    document.execCommand('copy')
-    copied.value = true
-    setTimeout(() => {
-      copied.value = false
-    }, 2000)
+    console.error('Échec de la copie:', err);
+    showFloatingNotification('Impossible de copier le lien.', 'error');
   }
-}
+};
 </script>

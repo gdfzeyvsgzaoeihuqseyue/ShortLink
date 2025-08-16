@@ -32,6 +32,17 @@ export interface GetLinkResponse {
   data: ShortLink
 }
 
+export interface UpdateLinkResponse {
+  success: boolean
+  message: string
+  data: ShortLink
+}
+
+export interface DeleteLinkResponse {
+  message: string
+  deleted: ShortLink
+}
+
 export const useLinksStore = defineStore('links', () => {
   const config = useRuntimeConfig()
 
@@ -125,6 +136,86 @@ export const useLinksStore = defineStore('links', () => {
     }
   }
 
+  const updateLink = async (id: string, longUrl: string): Promise<ShortLink | null> => {
+    loading.value = true
+    error.value = ''
+
+    try {
+      const response = await useApiFetch<UpdateLinkResponse>(`/shortlinks/${id}`, {
+        method: 'PUT',
+        body: { longUrl }
+      });
+
+      const updatedLink = response.data
+
+      // Mettre à jour le lien dans la liste
+      const index = links.value.findIndex(link => link.id === id)
+      if (index !== -1) {
+        links.value[index] = updatedLink
+      }
+
+      // Mettre à jour le lien courant si c'est le même
+      if (currentLink.value && currentLink.value.id === id) {
+        currentLink.value = updatedLink
+      }
+
+      return updatedLink
+    } catch (err: any) {
+      console.error('Erreur lors de la mise à jour du lien:', err)
+      
+      if (err.status === 404) {
+        error.value = 'Lien non trouvé.'
+      } else if (err.status === 400 && err.data?.message?.includes('nombre maximum')) {
+        error.value = 'Limite de 10 mises à jour atteinte pour ce lien.'
+      } else if (err.status === 400) {
+        error.value = err.data?.message || 'Données invalides fournies.'
+      } else {
+        error.value = err.data?.message || 'Une erreur inattendue est survenue lors de la mise à jour.'
+      }
+      
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteLink = async (id: string): Promise<boolean> => {
+    loading.value = true
+    error.value = ''
+
+    try {
+      await useApiFetch<DeleteLinkResponse>(`/shortlinks/${id}`, {
+        method: 'DELETE'
+      });
+
+      // Supprimer le lien de la liste
+      const index = links.value.findIndex(link => link.id === id)
+      if (index !== -1) {
+        links.value.splice(index, 1)
+        pagination.value.totalLinks--
+      }
+
+      // Nettoyer le lien courant si c'est le même
+      if (currentLink.value && currentLink.value.id === id) {
+        currentLink.value = null
+      }
+
+      return true
+    } catch (err: any) {
+      console.error('Erreur lors de la suppression du lien:', err)
+      
+      if (err.status === 404) {
+        error.value = 'Lien non trouvé'
+      } else {
+        error.value = err.data?.message || 'Une erreur est survenue lors de la suppression du lien'
+      }
+      
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   const refreshLinks = async (): Promise<void> => {
     await fetchLinks(pagination.value.currentPage)
   }
@@ -176,6 +267,8 @@ export const useLinksStore = defineStore('links', () => {
     createShortLink,
     fetchLinks,
     fetchLinkById,
+    updateLink,
+    deleteLink,
     refreshLinks,
     clearError,
     clearCurrentLink,

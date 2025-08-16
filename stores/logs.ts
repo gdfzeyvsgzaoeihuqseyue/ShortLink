@@ -6,8 +6,8 @@ export interface LogEntry {
   eventType: string
   updatedBy: string
   LogAt: string
-  ancienneUrl?: string
-  nouvelleUrl?: string
+  oldUrl?: string
+  newUrl?: string
 }
 
 export interface LinkDetails {
