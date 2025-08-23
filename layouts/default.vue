@@ -9,6 +9,6 @@
 </template>
 
 <script setup>
-import AppHeader from '~/components/App/AppHeader.vue'
-import AppFooter from '~/components/App/AppFooter.vue'
+import AppHeader from '~/components/app/AppHeader.vue'
+import AppFooter from '~/components/app/AppFooter.vue'
 </script>
