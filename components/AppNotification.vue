@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import { IconX } from '@tabler/icons-vue'
 
 const props = defineProps({

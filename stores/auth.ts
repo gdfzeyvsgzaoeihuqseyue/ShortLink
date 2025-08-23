@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null);
 
   // Initialiser l'état de connexion depuis le localStorage
-  if (process.client) { // S'assurer que le code s'exécute côté client
+  if (process.client) { 
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
     if (storedLoginStatus === 'true') {
       isLoggedIn.value = true;

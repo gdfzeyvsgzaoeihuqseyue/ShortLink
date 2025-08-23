@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+    <!-- En-tête -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestion des QR Codes</h1>
@@ -18,6 +19,7 @@
       </div>
     </div>
 
+    <!-- Statistiques -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="card p-6">
         <div class="flex items-center">
@@ -68,6 +70,7 @@
       </div>
     </div>
 
+    <!-- Filtres et recherche -->
     <div class="card p-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4">
@@ -95,31 +98,30 @@
         <div class="flex items-center space-x-3">
           <div class="flex bg-gray-100 rounded-lg p-1">
             <button @click="viewMode = 'grid'" :class="[
-                'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              ]">
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+            ]">
               <IconLayoutGrid class="w-4 h-4" />
             </button>
             <button @click="viewMode = 'table'" :class="[
-                'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                viewMode === 'table' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              ]">
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              viewMode === 'table' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+            ]">
               <IconLayoutList class="w-4 h-4" />
             </button>
           </div>
 
           <div v-if="selectedQRCodes.length > 0" class="flex items-center space-x-2">
             <span class="text-sm text-gray-600">{{ selectedQRCodes.length }} sélectionné(s)</span>
-            <button @click="navigateTo('/db/deleteInfo')"
-                    class="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center">
-              <IconInfoCircle class="w-4 h-4 mr-1" />
-              Info suppr.
+            <button @click="showBulkDeleteModal = true" class="text-red-600 hover:text-red-700 text-sm font-medium">
+              Supprimer
             </button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Liste des QR Codes -->
     <div class="card">
       <div v-if="qrStore.loading" class="flex justify-center py-12">
         <IconLoader class="animate-spin w-8 h-8 text-primary-600" />
@@ -146,6 +148,7 @@
         </NuxtLink>
       </div>
 
+      <!-- Vue grille -->
       <div v-else-if="viewMode === 'grid'" class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div v-for="qrCode in filteredQRCodes" :key="qrCode.id"
@@ -171,6 +174,7 @@
               </div>
             </div>
 
+            <!-- Aperçu du QR Code -->
             <div class="flex justify-center mb-4">
               <div class="w-24 h-24 bg-white rounded-lg border p-2">
                 <img :src="qrCode.qrCodeBase64" :alt="qrCode.title" class="w-full h-full object-contain" />
@@ -197,7 +201,7 @@
                 <button @click="editQRCode(qrCode)" class="text-orange-600 hover:text-orange-700 p-1">
                   <IconEdit class="w-4 h-4" />
                 </button>
-                <button disabled class="text-red-300 cursor-not-allowed p-1" title="Impossible de supprimer cet élément pour l'insatnt">
+                <button @click="confirmDelete(qrCode)" class="text-red-600 hover:text-red-700 p-1">
                   <IconTrash class="w-4 h-4" />
                 </button>
               </div>
@@ -206,6 +210,7 @@
         </div>
       </div>
 
+      <!-- Vue tableau -->
       <div v-else class="overflow-x-auto">
         <table class="min-w-full">
           <thead class="bg-gray-50">
@@ -281,7 +286,7 @@
                   <button @click="editQRCode(qrCode)" class="text-orange-600 hover:text-orange-700">
                     <IconEdit class="w-4 h-4" />
                   </button>
-                  <button disabled class="text-red-300 cursor-not-allowed" title="Impossible de supprimer cet élément pour l'insatnt">
+                  <button @click="confirmDelete(qrCode)" class="text-red-600 hover:text-red-700">
                     <IconTrash class="w-4 h-4" />
                   </button>
                 </div>
@@ -291,6 +296,7 @@
         </table>
       </div>
 
+      <!-- Pagination -->
       <div v-if="qrStore.pagination.totalPages > 1" class="px-6 py-4 border-t border-gray-200">
         <div class="flex items-center justify-between">
           <div class="text-sm text-gray-500">
@@ -315,6 +321,7 @@
       </div>
     </div>
 
+    <!-- Modals -->
     <EditQRCodeModal :visible="showEditModal" :qrCode="qrCodeToEdit" :loading="qrStore.loading" :error="qrStore.error"
       @submit="handleUpdateQRCode" @cancel="cancelEdit" />
 
@@ -324,6 +331,7 @@
     <BulkDeleteQRCodeModal :visible="showBulkDeleteModal" :count="selectedQRCodes.length" :loading="qrStore.loading"
       @confirm="confirmBulkDelete" @cancel="showBulkDeleteModal = false" />
 
+    <!-- Notifications -->
     <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
       @close="closeNotification" />
   </div>
@@ -332,7 +340,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useQRCodeStore, type QRCodeRecord } from '~/stores/qrcode';
-import { IconAlertTriangle, IconCalendar, IconDownload, IconEdit, IconEye, IconLayoutGrid, IconLayoutList, IconLink, IconLoader, IconPlus, IconQrcode, IconRefresh, IconSearch, IconTrash, IconWorld, IconInfoCircle } from '@tabler/icons-vue'
+import { IconAlertTriangle, IconCalendar, IconDownload, IconEdit, IconEye, IconLayoutGrid, IconLayoutList, IconLink, IconLoader, IconPlus, IconQrcode, IconRefresh, IconSearch, IconTrash, IconWorld } from '@tabler/icons-vue'
 import { BulkDeleteQRCodeModal, DeleteQRCodeModal, EditQRCodeModal } from '@/components/qrcode'
 
 definePageMeta({

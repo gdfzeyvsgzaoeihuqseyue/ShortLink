@@ -27,7 +27,9 @@
       </div>
 
       <div v-else-if="qrStore.currentQRCode" class="space-y-8">
+        <!-- Informations principales -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Aperçu du QR Code -->
           <div class="card p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Aperçu</h2>
             <div class="flex flex-col items-center">
@@ -49,14 +51,15 @@
                   <IconEdit class="w-4 h-4 mr-2" />
                   Modifier
                 </button>
-                <NuxtLink to="/db/deleteInfo" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center">
-                  <IconInfoCircle class="w-4 h-4 mr-2" />
-                  Info suppr.
-                </NuxtLink>
+                <button @click="confirmDelete" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium transition-colors flex items-center">
+                  <IconTrash class="w-4 h-4 mr-2" />
+                  Supprimer
+                </button>
               </div>
             </div>
           </div>
 
+          <!-- Informations détaillées -->
           <div class="card p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Informations</h2>
             <div class="space-y-6">
@@ -120,6 +123,7 @@
           </div>
         </div>
 
+        <!-- Options techniques -->
         <div class="card p-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Options techniques</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -178,6 +182,7 @@
           </div>
         </div>
 
+        <!-- Actions rapides -->
         <div class="card p-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Actions rapides</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -209,12 +214,14 @@
       </div>
     </div>
 
+    <!-- Modals -->
     <EditQRCodeModal :visible="showEditModal" :qrCode="qrStore.currentQRCode" :loading="qrStore.loading" :error="qrStore.error"
       @submit="handleUpdateQRCode" @cancel="cancelEdit" />
 
     <DeleteQRCodeModal :visible="showDeleteModal" :qrCode="qrStore.currentQRCode" :loading="qrStore.loading"
       @confirm="deleteQRCode" @cancel="cancelDelete" />
 
+    <!-- Notifications -->
     <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
       @close="closeNotification" />
   </div>
@@ -224,7 +231,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQRCodeStore } from '~/stores/qrcode';
-import { IconAlertTriangle, IconChevronLeft, IconCopy, IconDownload, IconEdit, IconLoader, IconPlus, IconShare, IconTrash, IconInfoCircle } from '@tabler/icons-vue';
+import { IconAlertTriangle, IconChevronLeft, IconCopy, IconDownload, IconEdit, IconLoader, IconPlus, IconShare, IconTrash } from '@tabler/icons-vue';
 import { DeleteQRCodeModal, EditQRCodeModal } from '@/components/qrcode'
 
 definePageMeta({
@@ -334,6 +341,31 @@ const handleUpdateQRCode = async (options: any) => {
 
 const cancelEdit = () => {
   showEditModal.value = false;
+  qrStore.clearError();
+};
+
+const confirmDelete = () => {
+  if (!qrStore.currentQRCode) return;
+  showDeleteModal.value = true;
+};
+
+const deleteQRCode = async () => {
+  if (!qrStore.currentQRCode) return;
+
+  const success = await qrStore.deleteQRCode(qrStore.currentQRCode.id);
+
+  if (success) {
+    showDeleteModal.value = false;
+    qrStore.clearCurrentQRCode();
+    showFloatingNotification('QR Code supprimé avec succès !', 'success');
+    await router.push('/db/qrcode');
+  } else {
+    showFloatingNotification(qrStore.error || 'Erreur lors de la suppression.', 'error');
+  }
+};
+
+const cancelDelete = () => {
+  showDeleteModal.value = false;
   qrStore.clearError();
 };
 
