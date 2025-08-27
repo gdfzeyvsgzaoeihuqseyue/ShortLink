@@ -66,14 +66,13 @@ const navSections: any[] = [
     title: "Produit",
     links: [
       { name: "Tarif", to: "/pricing" },
-      { name: "Dashboard", to: "/db" },
+      { name: "À propos", to: "/about", disabled: true, },
       { name: "API", to: "", disabled: true,}
     ]
   },
   {
     title: "Support",
     links: [
-      { name: "À propos", to: "/about" },
       { name: "Contact", to: "/contact" },
       { name: "Mentions légales", to: "/legal" },
       { name: "Confidentialité", to: "/privacy" }

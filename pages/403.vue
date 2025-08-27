@@ -23,9 +23,5 @@ definePageMeta({
   layout: false 
 });
 
-useSeoMeta({
-  title: 'Accès Interdit',
-  description: 'Vous n\'avez pas l\'autorisation d\'accéder à cette page.',
-  robots: 'noindex, nofollow'
-});
+usePageSeo('403')
 </script>

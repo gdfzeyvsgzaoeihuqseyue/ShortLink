@@ -423,9 +423,5 @@ const cancelDelete = () => {
 };
 
 // SEO
-useSeoMeta({
-  title: 'Dashboard',
-  description: 'Gérez et analysez vos liens raccourcis',
-  robots: 'index, follow',
-});
+usePageSeo('dashboard')
 </script>

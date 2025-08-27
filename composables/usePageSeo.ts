@@ -9,6 +9,7 @@ export function usePageSeo(page: keyof ReturnType<typeof useSeo>) {
     title: meta.title,
     description: meta.description,
     ogImage: meta.ogImage,
-    keywords: meta.keywords
+    keywords: meta.keywords,
+    robots: meta.robots
   })
 }

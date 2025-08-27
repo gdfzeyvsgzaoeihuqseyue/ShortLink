@@ -299,9 +299,6 @@ useSeoMeta({
 
 
 
-
-
-
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -355,32 +352,58 @@ useSeoMeta({
           :error="logsStore.error"
           @refresh-logs="refreshLogs"
         />
+
+        <!-- Nouvelle section pour les outils SEO -->
+        <div class="card p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Outils SEO</h2>
+          <div class="flex flex-wrap gap-4">
+            <button @click="openGenerateSitemapModal" class="btn-primary flex items-center">
+              <IconSitemap class="w-5 h-5 mr-2" />
+              Générer un Sitemap pour ce lien
+            </button>
+            <button @click="openGenerateRobotsTxtModal" class="btn-primary flex items-center">
+              <IconFileText class="w-5 h-5 mr-2" />
+              Générer un robots.txt pour ce lien
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div v-if="showAnalyticsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="relative">
-      <LinkAnalyticsDetails :analytics="analyticsStore.currentLinkAnalytics" :loading="analyticsStore.loading"
-        :error="analyticsStore.error" :link-id="linkId" @close="showAnalyticsModal = false" />
+    <div v-if="showAnalyticsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="relative">
+        <LinkAnalyticsDetails :analytics="analyticsStore.currentLinkAnalytics" :loading="analyticsStore.loading"
+          :error="analyticsStore.error" :link-id="linkId" @close="showAnalyticsModal = false" />
+      </div>
     </div>
-  </div>
 
-  <EditLinkModal :visible="showEditModal" :link="linksStore.currentLink" @submit="handleUpdateLink"
-    @cancel="cancelEdit" />
-  <DeleteLinkModal :visible="showDeleteModal" :link="linksStore.currentLink" @confirm="deleteLink"
-    @cancel="cancelDelete" />
-  <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
-    @close="closeNotification" />
+    <EditLinkModal :visible="showEditModal" :link="linksStore.currentLink" @submit="handleUpdateLink"
+      @cancel="cancelEdit" />
+    <!-- Ligne modifiée : suppression de .value car linkToDelete est déjà un ref de ShortLink | null -->
+    <DeleteLinkModal :visible="showDeleteModal" :link="linkToDelete" @confirm="deleteLink"
+      @cancel="cancelDelete" />
+
+    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading" :error="sitemapStore.error"
+      :initial-url="linksStore.currentLink?.longUrl"
+      @submit="handleGenerateSitemap" @cancel="closeGenerateSitemapModal" />
+
+    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading" :error="robotsTxtStore.error"
+      :initial-config="initialRobotsTxtConfig"
+      @submit="handleGenerateRobotsTxt" @cancel="closeGenerateRobotsTxtModal" />
+
+    <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
+      @close="closeNotification" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { IconAlertTriangle, IconChevronLeft, IconLoader } from '@tabler/icons-vue';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLinksStore } from '~/stores/links';
 import { useLogsStore } from '~/stores/logs';
 import { useAnalyticsStore } from '~/stores/analytics';
+import { useSitemapStore } from '~/stores/sitemap';
+import { useRobotsTxtStore } from '~/stores/robotstxt'; // Import du store robots.txt
 import {
   DeleteLinkModal,
   EditLinkModal,
@@ -389,6 +412,11 @@ import {
   LinkInfoCard,
   LinkHistoryCard
 } from '@/components/link';
+import { GenerateSitemapModal } from '@/components/sitemap';
+import { GenerateRobotsTxtModal } from '@/components/robotstxt'; // Import de la modale robots.txt
+import { IconAlertTriangle, IconChevronLeft, IconLoader, IconSitemap, IconFileText } from '@tabler/icons-vue'; // Ajout de IconFileText
+import type { GenerateSitemapResponse, SitemapGenerationOptions, GenerateRobotsTxtPayload, GenerateRobotsTxtResponse, RobotsTxtConfig } from '@/types';
+import type { ShortLink } from '~/types'; // Import de ShortLink pour le typage de linkToDelete
 
 definePageMeta({
   layout: 'dashboard'
@@ -399,20 +427,26 @@ const router = useRouter();
 const linksStore = useLinksStore();
 const logsStore = useLogsStore();
 const analyticsStore = useAnalyticsStore();
+const sitemapStore = useSitemapStore();
+const robotsTxtStore = useRobotsTxtStore(); // Utilisation du store robots.txt
 
 const linkId = route.params.id as string;
 const copied = ref(false);
 const showEditModal = ref(false);
-const showDeleteModal = ref(false); // Laissé pour la logique existante
+const showDeleteModal = ref(false);
 const showAnalyticsModal = ref(false);
 const statusLoading = ref(false);
+const showGenerateSitemapModal = ref(false);
+const showGenerateRobotsTxtModal = ref(false); // État pour la modale robots.txt
+
+// Déclaration de linkToDelete avec le type ShortLink | null
+const linkToDelete = ref<ShortLink | null>(null);
 
 const notificationMessage = ref('');
 const notificationType = ref<'success' | 'error' | 'info'>('success');
 const showNotification = ref(false);
 let notificationTimeout: NodeJS.Timeout | null = null;
 
-// Fonction pour afficher la notification flottante
 const showFloatingNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
   if (notificationTimeout) {
     clearTimeout(notificationTimeout);
@@ -432,6 +466,25 @@ const closeNotification = () => {
     clearTimeout(notificationTimeout);
   }
 };
+
+watch(() => linksStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
+
+watch(() => sitemapStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
+
+// Watch for robots.txt store errors
+watch(() => robotsTxtStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
 
 onMounted(async () => {
   if (linkId) {
@@ -458,6 +511,8 @@ onUnmounted(() => {
   logsStore.clearLogs();
   analyticsStore.clearError();
   linksStore.clearMetadataError();
+  sitemapStore.clearError();
+  robotsTxtStore.clearError(); // Nettoyer l'erreur du store robots.txt
 });
 
 const refreshLogs = async () => {
@@ -516,23 +571,15 @@ const showDeleteInfo = () => {
   navigateTo('/db/deleteInfo');
 };
 
-const confirmDelete = () => {
-  if (!linksStore.currentLink) {
-    showFloatingNotification('Aucun lien à supprimer.', 'error');
-    return;
-  }
-  showDeleteModal.value = true;
-};
-
 const deleteLink = async () => {
-  if (!linksStore.currentLink) {
-    showFloatingNotification('Aucun lien à supprimer.', 'error');
-    return;
-  }
-  const success = await linksStore.deleteLink(linksStore.currentLink.id);
-  if (success) {
+  if (!linkToDelete.value) return; // Utiliser linkToDelete.value ici
+
+  linksStore.clearError();
+
+  const deletedSuccessfully = await linksStore.deleteLink(linkToDelete.value.id); // Utiliser linkToDelete.value.id
+
+  if (deletedSuccessfully) {
     showDeleteModal.value = false;
-    linksStore.clearCurrentLink();
     showFloatingNotification('Lien supprimé avec succès !', 'success');
     await router.push('/db/links');
   } else {
@@ -566,6 +613,77 @@ const toggleLinkStatus = async (event: Event) => {
     showFloatingNotification('Une erreur inattendue est survenue.', 'error');
   } finally {
     statusLoading.value = false;
+  }
+};
+
+// Sitemap generation functions
+const openGenerateSitemapModal = () => {
+  showGenerateSitemapModal.value = true;
+  sitemapStore.clearError();
+};
+
+const closeGenerateSitemapModal = () => {
+  showGenerateSitemapModal.value = false;
+  sitemapStore.clearError();
+};
+
+const handleGenerateSitemap = async (options: SitemapGenerationOptions) => {
+  const result: GenerateSitemapResponse | null = await sitemapStore.generateSitemap(options);
+  if (result) {
+    showFloatingNotification(`Sitemap généré avec succès pour ${result.urlsCount} URLs !`, 'success');
+    closeGenerateSitemapModal();
+  } else {
+    // Error message is already handled by the watcher
+  }
+};
+
+// Robots.txt generation functions
+const initialRobotsTxtConfig = ref<RobotsTxtConfig | null>(null);
+
+const openGenerateRobotsTxtModal = () => {
+  if (linksStore.currentLink) {
+    // Pré-remplir avec l'URL du lien court comme sitemapUrl potentiel
+    initialRobotsTxtConfig.value = {
+      id: '', // Not relevant for initial config
+      title: `robots.txt pour ${linksStore.currentLink.shortCode}`,
+      userAgents: { '*': { allow: ['/'], disallow: [] } },
+      sitemapUrl: linksStore.currentLink.shortLink, // Utiliser le lien court comme sitemapUrl par défaut
+      customRules: '',
+      lastGenerated: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  } else {
+    initialRobotsTxtConfig.value = null;
+  }
+  showGenerateRobotsTxtModal.value = true;
+  robotsTxtStore.clearError();
+};
+
+const closeGenerateRobotsTxtModal = () => {
+  showGenerateRobotsTxtModal.value = false;
+  robotsTxtStore.clearError();
+  initialRobotsTxtConfig.value = null;
+};
+
+const handleGenerateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
+  const result: GenerateRobotsTxtResponse | null = await robotsTxtStore.generateRobotsTxt(payload);
+  if (result) {
+    showFloatingNotification(`Configuration robots.txt "${result.data.title}" générée avec succès !`, 'success');
+    // Optionnel: télécharger le fichier directement après génération
+    const blob = new Blob([result.robotsTxtContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `robots-${result.data.title.replace(/\s/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    closeGenerateRobotsTxtModal();
+  } else {
+    // Error message is already handled by the watcher
   }
 };
 

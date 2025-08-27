@@ -183,10 +183,140 @@ export interface RedirectResponse {
   redirectUrl?: string
 }
 
+
 // ===============================================
-// SOCIAL LINKS
+// ROBOTS.TXT
 // ===============================================
-// Définition du type pour un lien social tel que retourné par le backend
+export interface UserAgentRules {
+  allow?: string[]; 
+  disallow?: string[]; 
+
+  // allow?: readonly string[]; 
+  // disallow?: readonly string[];
+}
+
+export interface RobotsTxtConfig {
+  id: string;
+  title: string;
+  userAgents: { [key: string]: UserAgentRules };
+  sitemapUrl?: string;
+  customRules?: string;
+  lastGenerated: string; 
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GenerateRobotsTxtPayload {
+  title: string;
+  userAgents: { [key: string]: UserAgentRules };
+  sitemapUrl?: string;
+  customRules?: string;
+}
+
+export interface GenerateRobotsTxtResponse {
+  success: boolean;
+  message: string;
+  data: RobotsTxtConfig;
+  robotsTxtContent: string;
+}
+
+export interface GetRobotsTxtsResponse {
+  message: string;
+  nb: number;
+  nbOnPage: number;
+  currentPage: number;
+  totalPages: number;
+  data: RobotsTxtConfig[];
+}
+
+export interface GetRobotsTxtResponse {
+  success: boolean;
+  message: string;
+  data: RobotsTxtConfig;
+}
+
+export interface UpdateRobotsTxtResponse {
+  success: boolean;
+  message: string;
+  data: RobotsTxtConfig;
+}
+
+export interface DeleteRobotsTxtResponse {
+  success: boolean;
+  message: string;
+  data: RobotsTxtConfig;
+}
+
+
+// ===============================================
+// SITEMAP
+// ===============================================
+export interface ShortLinkSitemap {
+  id: string;
+  title?: string;
+  url: string;
+  sitemapXml: string;
+  options: SitemapGenerationOptions; 
+  urlsCount: number;
+  lastGenerated: string; 
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SitemapGenerationOptions {
+  url: string;
+  includePriority?: boolean;
+  includeLastmod?: boolean;
+  includeChangefreq?: boolean;
+  changefreq?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+  maxPages?: number;
+  followRobotsTxt?: boolean;
+  ignoreNoindex?: boolean;
+  ignoreNofollow?: boolean;
+  ignoreNonCanonical?: boolean;
+  includeImages?: boolean;
+  title?: string;
+}
+
+export interface GenerateSitemapResponse {
+  message: string;
+  sitemapId: string;
+  urlsCount: number;
+  sitemapXml: string;
+}
+
+export interface GetSitemapsResponse {
+  message: string;
+  nb: number;
+  nbOnPage: number;
+  currentPage: number;
+  totalPages: number;
+  data: ShortLinkSitemap[];
+}
+
+export interface GetSitemapResponse {
+  success: boolean;
+  message: string;
+  data: ShortLinkSitemap;
+}
+
+export interface UpdateSitemapResponse {
+  succes: boolean;
+  message: string;
+  data: ShortLinkSitemap;
+}
+
+export interface DeleteSitemapResponse {
+  success: boolean;
+  message: string;
+  data: ShortLinkSitemap;
+}
+
+
+// ===============================================
+// SOCIALLINKS
+// ===============================================
+// Backend
 export interface SocialLinkApi {
   id: string;
   media: string;
@@ -195,7 +325,7 @@ export interface SocialLinkApi {
   updatedAt: number;
 }
 
-// Définition du type pour le lien social formaté pour le frontend
+// Frontend
 export interface SocialLink {
   name: string;
   href: string;

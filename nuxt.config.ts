@@ -52,21 +52,21 @@ export default defineNuxtConfig({
 
         // Open Graph (Facebook, LinkedIn)
         { property: 'og:title', content: 'EasyQuickTrack - Raccourcisseur d\'URL intelligent' },
-        { property: 'og:description', content: 'Raccourcissez vos liens facilement avec LinkShort, le raccourcisseur moderne et gratuit.' },
+        { property: 'og:description', content: 'Raccourcissez vos liens facilement avec EasyQuickTrack, le raccourcisseur moderne et gratuit.' },
         { property: 'og:image', content: 'https://raw.githubusercontent.com/ProGestionSoft/Files/main/SuitOps_Landing/Hero/index.png' },
-        { property: 'og:url', content: 'https://ql.com' },
+        { property: 'og:url', content: 'https://stlk.netlify.app' },
         { property: 'og:type', content: 'website' },
         { property: 'og:locale', content: 'fr_FR' },
 
         // Twitter Card
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'EasyQuickTrack - Raccourcisseur d\'URL intelligent' },
-        { name: 'twitter:description', content: 'Raccourcissez vos liens facilement avec LinkShort, le raccourcisseur moderne et gratuit.' },
+        { name: 'twitter:description', content: 'Raccourcissez vos liens facilement avec EasyQuickTrack, le raccourcisseur moderne et gratuit.' },
         { name: 'twitter:image', content: 'https://raw.githubusercontent.com/ProGestionSoft/Files/main/SuitOps_Landing/Hero/index.png' },
       ],
       link: [
         { rel: 'icon', type: 'image/png', href: '/favicon.ico' },
-        { rel: 'canonical', href: 'https://ql.com' }
+        { rel: 'canonical', href: 'https://stlk.netlify.app' }
       ]
     }
   },

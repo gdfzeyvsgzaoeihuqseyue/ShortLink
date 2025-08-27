@@ -68,6 +68,26 @@
             <span v-if="!sidebarCollapsed || isMobile">QR Code</span>
           </NuxtLink>
 
+          <NuxtLink to="/db/sitemap" :class="[
+            'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+            $route.path === '/db/sitemap'
+              ? 'bg-primary-100 text-primary-700'
+              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+          ]">
+            <IconSitemap class="w-5 h-5 mr-3 flex-shrink-0" />
+            <span v-if="!sidebarCollapsed || isMobile">Sitemap</span>
+          </NuxtLink>
+
+          <NuxtLink to="/db/robotstxt" :class="[
+            'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+            $route.path === '/db/robotstxt'
+              ? 'bg-primary-100 text-primary-700'
+              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+          ]">
+            <IconRobot class="w-5 h-5 mr-3 flex-shrink-0" />
+            <span v-if="!sidebarCollapsed || isMobile">Robots.txt</span>
+          </NuxtLink>
+
           <NuxtLink to="/db/analytics" :class="[
             'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
             $route.path === '/db/analytics'
@@ -162,7 +182,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth';
 import {
   IconArrowLeft, IconChartHistogram, IconChevronsLeft, IconDeviceDesktop,
-  IconLink, IconMenuDeep, IconQrcode, IconSettings, IconX,
+  IconLink, IconMenuDeep, IconQrcode, IconSitemap, IconRobot, IconSettings, IconX,
   IconUserCircle, IconChevronDown, IconLogout
 } from '@tabler/icons-vue'
 import { useSharedFiles } from '~/stores/sharedFiles';
@@ -176,7 +196,7 @@ const authStore = useAuthStore();
 const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(false)
 const isMobile = ref(false)
-const profileMenuExpanded = ref(false); // Nouvel état pour le menu de profil
+const profileMenuExpanded = ref(false); 
 
 // Titre de la page basé sur la route
 const pageTitle = computed(() => {
@@ -185,6 +205,8 @@ const pageTitle = computed(() => {
   if (path.startsWith('/db/links')) return 'Mes liens'
   if (path.startsWith('/db/qrcode')) return 'QR Code'
   if (path === '/db/analytics') return 'Analytics'
+  if (path === '/db/sitemap') return 'Sitemap'
+  if (path === '/db/robotstxt') return 'Robots.txt'
   if (path === '/db/settings') return 'Paramètres'
   return 'Dashboard'
 })
