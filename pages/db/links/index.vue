@@ -654,15 +654,15 @@ useSeoMeta({
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestion des liens</h1>
         <p class="text-gray-600">Gérez tous vos liens raccourcis en un seul endroit</p>
       </div>
-      <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+      <div class="flex items-center gap-4 mx-auto">
         <button @click="refreshLinks" :disabled="linksStore.loading"
           class="flex items-center justify-center btn-secondary disabled:opacity-50">
-          <IconRefresh class="w-4 h-4 mr-2" />
-          Actualiser
+          <IconRefresh class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Actualiser</span>
         </button>
         <button @click="openCreateLinkModal" class="flex items-center justify-center btn-primary">
-          <IconPlus class="w-4 h-4 mr-2" />
-          Nouveau lien
+          <IconPlus class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Nouveau lien</span>
         </button>
       </div>
     </div>
@@ -746,15 +746,15 @@ useSeoMeta({
         <div class="flex items-center space-x-3">
           <div class="flex bg-gray-100 rounded-lg p-1">
             <button @click="viewMode = 'grid'" :class="[
-                'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              ]">
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+            ]">
               <IconLayoutGrid class="w-4 h-4" />
             </button>
             <button @click="viewMode = 'table'" :class="[
-                'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                viewMode === 'table' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              ]">
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              viewMode === 'table' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+            ]">
               <IconLayoutList class="w-4 h-4" />
             </button>
           </div>
@@ -762,7 +762,7 @@ useSeoMeta({
           <div v-if="selectedLinks.length > 0" class="flex items-center space-x-2">
             <span class="text-sm text-gray-600">{{ selectedLinks.length }} sélectionné(s)</span>
             <button @click="navigateTo('/db/deleteInfo')"
-                    class="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center">
+              class="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center">
               <IconInfoCircle class="w-4 h-4 mr-1" />
               Info suppr.
             </button>
@@ -846,7 +846,8 @@ useSeoMeta({
                 <button @click="editLink(link)" class="text-warning-600 hover:text-warning-700 p-1">
                   <IconEdit class="w-4 h-4" />
                 </button>
-                <button disabled class="text-red-300 cursor-not-allowed p-1" title="Impossible de supprimer cet élément pour l'insatnt">
+                <button disabled class="text-red-300 cursor-not-allowed p-1"
+                  title="Impossible de supprimer cet élément pour l'insatnt">
                   <IconTrash class="w-4 h-4" />
                 </button>
               </div>
@@ -936,7 +937,8 @@ useSeoMeta({
                   <button @click="editLink(link)" class="text-warning-600 hover:text-warning-700">
                     <IconEdit class="w-4 h-4" />
                   </button>
-                  <button disabled class="text-red-300 cursor-not-allowed" title="Impossible de supprimer cet élément pour l'insatnt">
+                  <button disabled class="text-red-300 cursor-not-allowed"
+                    title="Impossible de supprimer cet élément pour l'insatnt">
                     <IconTrash class="w-4 h-4" />
                   </button>
                 </div>

@@ -5,15 +5,15 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestion des robots.txt</h1>
         <p class="text-gray-600">Générez et gérez les fichiers robots.txt pour vos sites web</p>
       </div>
-      <div class="flex flex-col sm:flex-row gap-3">
+      <div class="flex items-center gap-4 mx-auto">
         <button @click="refreshRobotsTxtConfigs" :disabled="robotsTxtStore.loading"
           class="flex items-center justify-center btn-secondary disabled:opacity-50">
-          <IconRefresh class="w-4 h-4 mr-2" />
-          Actualiser
+          <IconRefresh class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Actualiser</span>
         </button>
         <button @click="openGenerateModal" class="flex items-center justify-center btn-primary">
-          <IconPlus class="w-4 h-4 mr-2" />
-          Générer un robots.txt
+          <IconPlus class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Générer un robots.txt</span>
         </button>
       </div>
     </div>
@@ -26,6 +26,28 @@
             <input v-model="searchQuery" type="text" placeholder="Rechercher une config..."
               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64" />
           </div>
+
+          <!-- Nouveau filtre par date -->
+          <select v-model="dateFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="all">Toutes les dates</option>
+            <option value="last7days">Derniers 7 jours</option>
+            <option value="last30days">Derniers 30 jours</option>
+            <option value="last90days">Derniers 90 jours</option>
+            <option value="thisYear">Cette année</option>
+          </select>
+
+          <!-- Nouveau filtre par présence de Sitemap URL -->
+          <select v-model="hasSitemapUrlFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="all">Sitemap URL (Tous)</option>
+            <option value="has">Avec Sitemap URL</option>
+            <option value="no">Sans Sitemap URL</option>
+          </select>
+
+          <!-- Nouveau filtre par User-agent -->
+          <input v-model="userAgentSearchQuery" type="text" placeholder="Filtrer par User-agent..."
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64" />
         </div>
       </div>
     </div>
@@ -45,10 +67,10 @@
       <div v-else-if="filteredConfigs.length === 0" class="text-center py-12">
         <IconFileText class="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h3 class="text-lg font-medium text-gray-900 mb-2">
-          {{ searchQuery ? 'Aucun résultat trouvé' : 'Aucune configuration robots.txt trouvée' }}
+          {{ searchQuery || dateFilter !== 'all' || hasSitemapUrlFilter !== 'all' || userAgentSearchQuery ? 'Aucun résultat trouvé' : 'Aucune configuration robots.txt trouvée' }}
         </h3>
         <p class="text-gray-500 mb-4">
-          {{ searchQuery ? 'Essayez de modifier vos critères de recherche'
+          {{ searchQuery || dateFilter !== 'all' || hasSitemapUrlFilter !== 'all' || userAgentSearchQuery ? 'Essayez de modifier vos critères de recherche'
             : 'Commencez par générer votre première configuration robots.txt' }}
         </p>
         <button @click="openGenerateModal" class="btn-primary">
@@ -57,7 +79,6 @@
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-        <!-- Ici, 'config' est de type Readonly<RobotsTxtConfig> -->
         <RobotsTxtItemCard v-for="config in filteredConfigs" :key="config.id" :config="config"
           @delete="confirmDelete" />
       </div>
@@ -112,10 +133,13 @@ definePageMeta({
 const robotsTxtStore = useRobotsTxtStore();
 
 const searchQuery = ref('');
+const dateFilter = ref('all'); // 'all', 'last7days', 'last30days', 'last90days', 'thisYear'
+const hasSitemapUrlFilter = ref('all'); // 'all', 'has', 'no'
+const userAgentSearchQuery = ref(''); // Pour filtrer par user-agent
+
 const showGenerateModal = ref(false);
 const showDeleteModal = ref(false);
-// Typez configToDelete comme Readonly<RobotsTxtConfig> | null
-const configToDelete = ref<Readonly<RobotsTxtConfig> | null>(null);
+const configToDelete = ref<RobotsTxtConfig | null>(null);
 
 // Notification
 const notificationMessage = ref('');
@@ -154,19 +178,58 @@ onMounted(() => {
   robotsTxtStore.fetchRobotsTxtConfigs();
 });
 
-// Typage explicite de filteredConfigs
-const filteredConfigs = computed<ReadonlyArray<Readonly<RobotsTxtConfig>>>(() => {
-  // robotsTxtStore.robotsTxtConfigs est déjà de type Readonly<RobotsTxtConfig[]>
-  // donc aucune conversion explicite n'est nécessaire ici.
-  if (!searchQuery.value) {
-    return robotsTxtStore.robotsTxtConfigs;
+const filteredConfigs = computed(() => {
+  let configs = [...robotsTxtStore.robotsTxtConfigs];
+
+  // Filtrage par recherche générale
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    configs = configs.filter(config =>
+      config.title.toLowerCase().includes(query) ||
+      (config.sitemapUrl && config.sitemapUrl.toLowerCase().includes(query)) ||
+      Object.keys(config.userAgents).some(ua => ua.toLowerCase().includes(query))
+    );
   }
-  const query = searchQuery.value.toLowerCase();
-  return robotsTxtStore.robotsTxtConfigs.filter(config =>
-    config.title.toLowerCase().includes(query) ||
-    (config.sitemapUrl && config.sitemapUrl.toLowerCase().includes(query)) ||
-    Object.keys(config.userAgents).some(ua => ua.toLowerCase().includes(query))
-  );
+
+  // Filtrage par date
+  const now = new Date();
+  if (dateFilter.value !== 'all') {
+    configs = configs.filter(config => {
+      const configDate = new Date(config.lastGenerated);
+      if (dateFilter.value === 'last7days') {
+        return configDate >= new Date(now.setDate(now.getDate() - 7));
+      } else if (dateFilter.value === 'last30days') {
+        return configDate >= new Date(now.setMonth(now.getMonth() - 1));
+      } else if (dateFilter.value === 'last90days') {
+        return configDate >= new Date(now.setMonth(now.getMonth() - 3));
+      } else if (dateFilter.value === 'thisYear') {
+        return configDate.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+  }
+
+  // Filtrage par présence de Sitemap URL
+  if (hasSitemapUrlFilter.value !== 'all') {
+    configs = configs.filter(config => {
+      if (hasSitemapUrlFilter.value === 'has') {
+        return !!config.sitemapUrl;
+      } else if (hasSitemapUrlFilter.value === 'no') {
+        return !config.sitemapUrl;
+      }
+      return true;
+    });
+  }
+
+  // Filtrage par User-agent
+  if (userAgentSearchQuery.value) {
+    const uaQuery = userAgentSearchQuery.value.toLowerCase();
+    configs = configs.filter(config =>
+      Object.keys(config.userAgents).some(ua => ua.toLowerCase().includes(uaQuery))
+    );
+  }
+
+  return configs;
 });
 
 const refreshRobotsTxtConfigs = async () => {
@@ -200,10 +263,9 @@ const handleGenerateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
 };
 
 const confirmDelete = (id: string) => {
-  // Trouvez la configuration dans le tableau readonly du store
   const config = robotsTxtStore.robotsTxtConfigs.find(c => c.id === id);
   if (config) {
-    configToDelete.value = config; // Assigner l'objet readonly
+    configToDelete.value = config;
     showDeleteModal.value = true;
     robotsTxtStore.clearError();
   }
@@ -231,3 +293,4 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 });
 </script>
+

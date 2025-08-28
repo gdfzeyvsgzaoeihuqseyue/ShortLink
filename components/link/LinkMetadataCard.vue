@@ -1,7 +1,7 @@
 <template>
   <div class="card p-8">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-gray-900">Métadonnées du site</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2 sm:mb-0">Métadonnées du site</h2>
       <button v-if="!loading && linkMetadata" @click="$emit('refresh')" class="btn-secondary flex items-center text-sm">
         <IconRefresh class="w-4 h-4 mr-2" />
         Actualiser

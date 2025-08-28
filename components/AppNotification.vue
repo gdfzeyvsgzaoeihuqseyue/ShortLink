@@ -4,7 +4,7 @@
     'bg-red-500': type === 'error',
     'bg-blue-500': type === 'info',
   }"
-    class="fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg flex items-center justify-between z-[1000] transition-opacity duration-300"
+    class="fixed bottom-4 right-4 p-4 rounded-lg text-white shadow-lg flex items-center justify-between z-[1000] transition-opacity duration-300"
     style="min-width: 250px; max-width: 90%; opacity: 1;">
     <span>{{ message }}</span>
     <button @click="$emit('close')" class="ml-4 text-white hover:text-gray-200">

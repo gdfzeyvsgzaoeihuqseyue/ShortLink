@@ -25,9 +25,9 @@
             </NuxtLink>
           </div>
           <div v-else class="flex justify-center w-full">
-            <div
-              class="w-8 h-8 bg-gradient-to-r from-primary-600 to-success-500 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-sm">EQT</span>
+            <div class="flex-shrink-0">
+              <img :src="sharedFiles.paths.logo.mc" alt="Logo" class="h-8 w-auto sm:h-10 dark:hidden" />
+              <img :src="sharedFiles.paths.logo.mw" alt="Logo" class="h-8 w-auto sm:h-10 hidden dark:block" />
             </div>
           </div>
 
@@ -196,7 +196,7 @@ const authStore = useAuthStore();
 const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(false)
 const isMobile = ref(false)
-const profileMenuExpanded = ref(false); 
+const profileMenuExpanded = ref(false);
 
 // Titre de la page basé sur la route
 const pageTitle = computed(() => {

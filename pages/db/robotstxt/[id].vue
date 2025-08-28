@@ -5,12 +5,13 @@
         <div class="flex items-center space-x-4 mb-4">
           <NuxtLink to="/db/robotstxt" class="text-primary-600 hover:text-primary-700 flex items-center">
             <IconChevronLeft class="w-5 h-5 mr-2" />
-            Retour aux configurations robots.txt
+            <span class="hidden sm:inline">Retour aux configurations robots.txt</span>
+            <span class="sm:hidden">Retour</span>
           </NuxtLink>
         </div>
 
         <div v-if="robotsTxtStore.currentRobotsTxtConfig">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Détails de la configuration robots.txt</h1>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Détails de la configuration robots.txt</h1>
           <p class="text-gray-600">Informations et contenu pour "{{ robotsTxtStore.currentRobotsTxtConfig.title }}"</p>
         </div>
       </div>
@@ -72,16 +73,16 @@
 
           <!-- Contenu robots.txt généré -->
           <div class="card p-8">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
               <h2 class="text-2xl font-bold text-gray-900">Contenu robots.txt</h2>
-              <div class="flex gap-2">
-                <button @click="copyContentToClipboard" class="btn-secondary text-sm py-2 px-4">
-                  <IconCopy class="w-4 h-4 mr-2" />
-                  {{ copied ? 'Copié!' : 'Copier' }}
+              <div class="flex gap-2 mx-auto">
+                <button @click="copyContentToClipboard" class="btn-secondary flex items-center justify-center text-sm py-2 px-4">
+                  <IconCopy class="w-4 h-4" />
+                  <span class="hidden sm:inline ml-2">{{ copied ? 'Copié!' : 'Copier' }}</span>
                 </button>
-                <button @click="downloadRobotsTxt" class="btn-primary text-sm py-2 px-4">
-                  <IconDownload class="w-4 h-4 mr-2" />
-                  Télécharger
+                <button @click="downloadRobotsTxt" class="btn-primary flex items-center justify-center text-sm py-2 px-4">
+                  <IconDownload class="w-4 h-4" />
+                  <span class="hidden sm:inline ml-2">Télécharger</span>
                 </button>
               </div>
             </div>
@@ -90,26 +91,23 @@
         </div>
 
         <!-- Actions -->
-        <div class="card p-8 flex justify-end gap-4">
-          <button @click="openEditModal" class="btn-secondary flex items-center">
-            <IconEdit class="w-5 h-5 mr-2" />
-            Modifier
+        <div class="card p-8 flex flex-col sm:flex-row sm:justify-end gap-4">
+          <button @click="openEditModal" class="btn-secondary flex items-center justify-center">
+            <IconEdit class="w-5 h-5 mr-2 sm:mr-2" />
+            <span class="text-sm">Modifier</span>
           </button>
-          <button @click="confirmDelete" class="btn-danger flex items-center">
-            <IconTrash class="w-5 h-5 mr-2" />
-            Supprimer cette config
+          <button @click="confirmDelete" class="btn-danger flex items-center justify-center">
+            <IconTrash class="w-5 h-5 mr-2 sm:mr-2" />
+            <span class="text-sm">Supprimer cette config</span>
           </button>
         </div>
       </div>
     </div>
 
     <GenerateRobotsTxtModal :visible="showEditModal" :loading="robotsTxtStore.loading" :error="robotsTxtStore.error"
-      :initial-config="config"
-      @submit="handleUpdateRobotsTxt" @cancel="closeEditModal" />
-
+      :initial-config="config" @submit="handleUpdateRobotsTxt" @cancel="closeEditModal" />
     <DeleteRobotsTxtModal :visible="showDeleteModal" :config="config" :loading="robotsTxtStore.loading"
       @confirm="deleteRobotsTxt" @cancel="closeDeleteModal" />
-
     <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
       @close="closeNotification" />
   </div>
@@ -139,7 +137,7 @@ const config = computed<RobotsTxtConfig | null>(() => robotsTxtStore.currentRobo
 const copied = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
-const robotsTxtContent = ref(''); 
+const robotsTxtContent = ref('');
 
 // Notification
 const notificationMessage = ref('');
@@ -178,7 +176,6 @@ onMounted(async () => {
   if (configId) {
     await robotsTxtStore.fetchRobotsTxtById(configId);
     if (config.value) {
-      // Reconstruire le contenu robots.txt pour l'affichage
       robotsTxtContent.value = buildRobotsTxtContent(config.value);
     }
   }
@@ -264,8 +261,6 @@ const handleUpdateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
   if (result) {
     showFloatingNotification('Configuration robots.txt mise à jour avec succès !', 'success');
     closeEditModal();
-  } else {
-    // Error handled by watcher
   }
 };
 
@@ -285,7 +280,6 @@ const deleteRobotsTxt = async () => {
   if (success) {
     showFloatingNotification('Configuration robots.txt supprimée avec succès !', 'success');
     router.push('/db/robotstxt');
-  } else {
   }
 };
 

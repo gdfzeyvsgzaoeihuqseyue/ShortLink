@@ -5,15 +5,15 @@
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestion des Sitemaps</h1>
         <p class="text-gray-600">Générez et gérez les sitemaps de vos sites web</p>
       </div>
-      <div class="flex flex-col sm:flex-row gap-3">
+      <div class="flex items-center gap-4 mx-auto">
         <button @click="refreshSitemaps" :disabled="sitemapStore.loading"
           class="flex items-center justify-center btn-secondary disabled:opacity-50">
-          <IconRefresh class="w-4 h-4 mr-2" />
-          Actualiser
+          <IconRefresh class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Actualiser</span>
         </button>
         <button @click="openGenerateModal" class="flex items-center justify-center btn-primary">
-          <IconPlus class="w-4 h-4 mr-2" />
-          Générer un Sitemap
+          <IconPlus class="w-4 h-4" />
+          <span class="hidden sm:inline ml-2">Générer un Sitemap</span>
         </button>
       </div>
     </div>
@@ -26,6 +26,25 @@
             <input v-model="searchQuery" type="text" placeholder="Rechercher un sitemap..."
               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64" />
           </div>
+
+          <!-- Nouveau filtre par date -->
+          <select v-model="dateFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="all">Toutes les dates</option>
+            <option value="last7days">Derniers 7 jours</option>
+            <option value="last30days">Derniers 30 jours</option>
+            <option value="last90days">Derniers 90 jours</option>
+            <option value="thisYear">Cette année</option>
+          </select>
+
+          <select v-model="urlCountFilter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="all">Toutes les URLs</option>
+            <option value="less10">Moins de 10 URLs</option>
+            <option value="10-50">10 - 50 URLs</option>
+            <option value="51-100">51 - 100 URLs</option>
+            <option value="more100">Plus de 100 URLs</option>
+          </select>
         </div>
       </div>
     </div>
@@ -45,10 +64,10 @@
       <div v-else-if="filteredSitemaps.length === 0" class="text-center py-12">
         <IconSitemap class="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h3 class="text-lg font-medium text-gray-900 mb-2">
-          {{ searchQuery ? 'Aucun résultat trouvé' : 'Aucun sitemap trouvé' }}
+          {{ searchQuery || dateFilter !== 'all' || urlCountFilter !== 'all' ? 'Aucun résultat trouvé' : 'Aucun sitemap trouvé' }}
         </h3>
         <p class="text-gray-500 mb-4">
-          {{ searchQuery ? 'Essayez de modifier vos critères de recherche'
+          {{ searchQuery || dateFilter !== 'all' || urlCountFilter !== 'all' ? 'Essayez de modifier vos critères de recherche'
             : 'Commencez par générer votre premier sitemap' }}
         </p>
         <button @click="openGenerateModal" class="btn-primary">
@@ -110,6 +129,9 @@ definePageMeta({
 const sitemapStore = useSitemapStore();
 
 const searchQuery = ref('');
+const dateFilter = ref('all'); 
+const urlCountFilter = ref('all'); 
+
 const showGenerateModal = ref(false);
 const showDeleteModal = ref(false);
 const sitemapToDelete = ref<ShortLinkSitemap | null>(null);
@@ -152,14 +174,53 @@ onMounted(() => {
 });
 
 const filteredSitemaps = computed(() => {
-  if (!searchQuery.value) {
-    return sitemapStore.sitemaps;
+  let sitemaps = [...sitemapStore.sitemaps];
+
+  // Filtrage par recherche
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    sitemaps = sitemaps.filter(sitemap =>
+      (sitemap.title && sitemap.title.toLowerCase().includes(query)) ||
+      sitemap.url.toLowerCase().includes(query)
+    );
   }
-  const query = searchQuery.value.toLowerCase();
-  return sitemapStore.sitemaps.filter(sitemap =>
-    (sitemap.title && sitemap.title.toLowerCase().includes(query)) ||
-    sitemap.url.toLowerCase().includes(query)
-  );
+
+  // Filtrage par date
+  const now = new Date();
+  if (dateFilter.value !== 'all') {
+    sitemaps = sitemaps.filter(sitemap => {
+      const sitemapDate = new Date(sitemap.lastGenerated);
+      if (dateFilter.value === 'last7days') {
+        return sitemapDate >= new Date(now.setDate(now.getDate() - 7));
+      } else if (dateFilter.value === 'last30days') {
+        return sitemapDate >= new Date(now.setMonth(now.getMonth() - 1));
+      } else if (dateFilter.value === 'last90days') {
+        return sitemapDate >= new Date(now.setMonth(now.getMonth() - 3));
+      } else if (dateFilter.value === 'thisYear') {
+        return sitemapDate.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+  }
+
+  // Filtrage par nombre d'URLs
+  if (urlCountFilter.value !== 'all') {
+    sitemaps = sitemaps.filter(sitemap => {
+      const count = sitemap.urlsCount;
+      if (urlCountFilter.value === 'less10') {
+        return count < 10;
+      } else if (urlCountFilter.value === '10-50') {
+        return count >= 10 && count <= 50;
+      } else if (urlCountFilter.value === '51-100') {
+        return count > 50 && count <= 100;
+      } else if (urlCountFilter.value === 'more100') {
+        return count > 100;
+      }
+      return true;
+    });
+  }
+
+  return sitemaps;
 });
 
 const refreshSitemaps = async () => {
@@ -229,3 +290,4 @@ useSeoMeta({
   @apply bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors;
 }
 </style>
+

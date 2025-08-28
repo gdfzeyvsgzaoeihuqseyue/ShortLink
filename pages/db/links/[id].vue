@@ -328,42 +328,30 @@ useSeoMeta({
       </div>
 
       <div v-else-if="linksStore.currentLink" class="space-y-8">
-        <LinkInfoCard
-          :link="linksStore.currentLink"
-          :status-loading="statusLoading"
-          :copied="copied"
-          :total-logs="logsStore.totalLogs"
-          @toggle-status="toggleLinkStatus"
-          @show-analytics="showAnalyticsModal = true"
-          @copy-link="copyToClipboard"
-          @generate-qr-code="generateQRCode"
-          @edit-link="editLink"
-          @show-delete-info="showDeleteInfo"
-        />
-        <LinkMetadataCard
-          :link-metadata="linksStore.currentLink?.metadata"
-          :loading="linksStore.metadataLoading"
-          :error="linksStore.metadataError"
-          @refresh="refreshMetadata"
-        />
-        <LinkHistoryCard
-          :logs="logsStore.logs"
-          :loading="logsStore.loading"
-          :error="logsStore.error"
-          @refresh-logs="refreshLogs"
-        />
+        <LinkInfoCard :link="linksStore.currentLink" :status-loading="statusLoading" :copied="copied"
+          :total-logs="logsStore.totalLogs" @toggle-status="toggleLinkStatus"
+          @show-analytics="showAnalyticsModal = true" @copy-link="copyToClipboard" @generate-qr-code="generateQRCode"
+          @edit-link="editLink" @show-delete-info="showDeleteInfo" />
+        <LinkMetadataCard :link-metadata="linksStore.currentLink?.metadata" :loading="linksStore.metadataLoading"
+          :error="linksStore.metadataError" @refresh="refreshMetadata" />
+        <LinkHistoryCard :logs="logsStore.logs" :loading="logsStore.loading" :error="logsStore.error"
+          @refresh-logs="refreshLogs" />
 
-        <!-- Nouvelle section pour les outils SEO -->
+        <!-- Outils SEO -->
         <div class="card p-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Outils SEO</h2>
-          <div class="flex flex-wrap gap-4">
-            <button @click="openGenerateSitemapModal" class="btn-primary flex items-center">
-              <IconSitemap class="w-5 h-5 mr-2" />
-              Générer un Sitemap pour ce lien
+          <div class="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap">
+            <button @click="openGenerateSitemapModal"
+              class="btn-primary flex flex-col sm:flex-row items-center justify-center text-center sm:text-left">
+              <IconSitemap class="w-5 h-5 mb-1 sm:mr-2 sm:mb-0" />
+              <span class="text-xs sm:hidden">Sitemap</span>
+              <span class="hidden sm:inline">Générer un Sitemap pour ce lien</span>
             </button>
-            <button @click="openGenerateRobotsTxtModal" class="btn-primary flex items-center">
-              <IconFileText class="w-5 h-5 mr-2" />
-              Générer un robots.txt pour ce lien
+            <button @click="openGenerateRobotsTxtModal"
+              class="btn-primary flex flex-col sm:flex-row items-center justify-center text-center sm:text-left">
+              <IconFileText class="w-5 h-5 mb-1 sm:mr-2 sm:mb-0" />
+              <span class="text-xs sm:hidden">Robots.txt</span>
+              <span class="hidden sm:inline">Générer un robots.txt pour ce lien</span>
             </button>
           </div>
         </div>
@@ -379,17 +367,15 @@ useSeoMeta({
 
     <EditLinkModal :visible="showEditModal" :link="linksStore.currentLink" @submit="handleUpdateLink"
       @cancel="cancelEdit" />
-    <!-- Ligne modifiée : suppression de .value car linkToDelete est déjà un ref de ShortLink | null -->
-    <DeleteLinkModal :visible="showDeleteModal" :link="linkToDelete" @confirm="deleteLink"
-      @cancel="cancelDelete" />
+    <DeleteLinkModal :visible="showDeleteModal" :link="linkToDelete" @confirm="deleteLink" @cancel="cancelDelete" />
 
-    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading" :error="sitemapStore.error"
-      :initial-url="linksStore.currentLink?.longUrl"
-      @submit="handleGenerateSitemap" @cancel="closeGenerateSitemapModal" />
+    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading"
+      :error="sitemapStore.error" :initial-url="linksStore.currentLink?.longUrl" @submit="handleGenerateSitemap"
+      @cancel="closeGenerateSitemapModal" />
 
-    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading" :error="robotsTxtStore.error"
-      :initial-config="initialRobotsTxtConfig"
-      @submit="handleGenerateRobotsTxt" @cancel="closeGenerateRobotsTxtModal" />
+    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading"
+      :error="robotsTxtStore.error" :initial-config="initialRobotsTxtConfig" @submit="handleGenerateRobotsTxt"
+      @cancel="closeGenerateRobotsTxtModal" />
 
     <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
       @close="closeNotification" />
@@ -403,7 +389,7 @@ import { useLinksStore } from '~/stores/links';
 import { useLogsStore } from '~/stores/logs';
 import { useAnalyticsStore } from '~/stores/analytics';
 import { useSitemapStore } from '~/stores/sitemap';
-import { useRobotsTxtStore } from '~/stores/robotstxt'; // Import du store robots.txt
+import { useRobotsTxtStore } from '~/stores/robotstxt';
 import {
   DeleteLinkModal,
   EditLinkModal,
@@ -413,10 +399,10 @@ import {
   LinkHistoryCard
 } from '@/components/link';
 import { GenerateSitemapModal } from '@/components/sitemap';
-import { GenerateRobotsTxtModal } from '@/components/robotstxt'; // Import de la modale robots.txt
-import { IconAlertTriangle, IconChevronLeft, IconLoader, IconSitemap, IconFileText } from '@tabler/icons-vue'; // Ajout de IconFileText
+import { GenerateRobotsTxtModal } from '@/components/robotstxt';
+import { IconAlertTriangle, IconChevronLeft, IconLoader, IconSitemap, IconFileText } from '@tabler/icons-vue';
 import type { GenerateSitemapResponse, SitemapGenerationOptions, GenerateRobotsTxtPayload, GenerateRobotsTxtResponse, RobotsTxtConfig } from '@/types';
-import type { ShortLink } from '~/types'; // Import de ShortLink pour le typage de linkToDelete
+import type { ShortLink } from '~/types';
 
 definePageMeta({
   layout: 'dashboard'
@@ -428,7 +414,7 @@ const linksStore = useLinksStore();
 const logsStore = useLogsStore();
 const analyticsStore = useAnalyticsStore();
 const sitemapStore = useSitemapStore();
-const robotsTxtStore = useRobotsTxtStore(); // Utilisation du store robots.txt
+const robotsTxtStore = useRobotsTxtStore();
 
 const linkId = route.params.id as string;
 const copied = ref(false);
@@ -437,9 +423,7 @@ const showDeleteModal = ref(false);
 const showAnalyticsModal = ref(false);
 const statusLoading = ref(false);
 const showGenerateSitemapModal = ref(false);
-const showGenerateRobotsTxtModal = ref(false); // État pour la modale robots.txt
-
-// Déclaration de linkToDelete avec le type ShortLink | null
+const showGenerateRobotsTxtModal = ref(false);
 const linkToDelete = ref<ShortLink | null>(null);
 
 const notificationMessage = ref('');
@@ -512,7 +496,7 @@ onUnmounted(() => {
   analyticsStore.clearError();
   linksStore.clearMetadataError();
   sitemapStore.clearError();
-  robotsTxtStore.clearError(); // Nettoyer l'erreur du store robots.txt
+  robotsTxtStore.clearError();
 });
 
 const refreshLogs = async () => {

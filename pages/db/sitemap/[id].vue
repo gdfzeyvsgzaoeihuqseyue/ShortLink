@@ -97,12 +97,12 @@
               <div class="flex items-center">
                 <IconCheck class="w-5 h-5 text-green-500 mr-2" v-if="sitemap.options.ignoreNoindex" />
                 <IconX class="w-5 h-5 text-red-500 mr-2" v-else />
-                <span>Ignorer noindex: {{ sitemap.options.ignoreNoindex ? 'Oui' : 'Non' }}</span>
+                <span>Ignorer "noindex": {{ sitemap.options.ignoreNoindex ? 'Oui' : 'Non' }}</span>
               </div>
               <div class="flex items-center">
                 <IconCheck class="w-5 h-5 text-green-500 mr-2" v-if="sitemap.options.ignoreNofollow" />
                 <IconX class="w-5 h-5 text-red-500 mr-2" v-else />
-                <span>Ignorer nofollow: {{ sitemap.options.ignoreNofollow ? 'Oui' : 'Non' }}</span>
+                <span>Ignorer "nofollow": {{ sitemap.options.ignoreNofollow ? 'Oui' : 'Non' }}</span>
               </div>
               <div class="flex items-center">
                 <IconCheck class="w-5 h-5 text-green-500 mr-2" v-if="sitemap.options.ignoreNonCanonical" />
@@ -112,7 +112,7 @@
               <div class="flex items-center">
                 <IconCheck class="w-5 h-5 text-green-500 mr-2" v-if="sitemap.options.includeImages" />
                 <IconX class="w-5 h-5 text-red-500 mr-2" v-else />
-                <span>Inclure images: {{ sitemap.options.includeImages ? 'Oui' : 'Non' }}</span>
+                <span>Inclure les images: {{ sitemap.options.includeImages ? 'Oui' : 'Non' }}</span>
               </div>
             </div>
           </div>
@@ -120,14 +120,23 @@
 
         <!-- Contenu XML -->
         <div class="card p-8">
-          <div class="flex justify-between items-center mb-6">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
             <h2 class="text-2xl font-bold text-gray-900">Contenu XML du Sitemap</h2>
-            <button @click="copyXmlToClipboard" class="btn-secondary text-sm py-2 px-4">
-              <IconCopy class="w-4 h-4 mr-2" />
-              {{ copied ? 'Copié!' : 'Copier XML' }}
-            </button>
+            <div class="flex gap-2 mx-auto">
+              <button @click="copyXmlToClipboard"
+                class="btn-secondary flex items-center justify-center text-sm py-2 px-4">
+                <IconCopy class="w-4 h-4" />
+                <span class="hidden sm:inline ml-2">{{ copied ? 'Copié!' : 'Copier XML' }}</span>
+              </button>
+              <button @click="downloadSitemapXml"
+                class="btn-primary flex items-center justify-center text-sm py-2 px-4">
+                <IconDownload class="w-4 h-4" />
+                <span class="hidden sm:inline ml-2">Télécharger</span>
+              </button>
+            </div>
           </div>
-          <pre class="bg-gray-100 p-4 rounded-lg overflow-auto text-sm max-h-96">{{ sitemap.sitemapXml }}</pre>
+          <pre
+            class="bg-gray-100 p-4 rounded-lg overflow-auto text-sm max-h-96 whitespace-pre-wrap">{{ sitemap.sitemapXml }}</pre>
         </div>
 
         <!-- Actions -->
@@ -155,7 +164,7 @@ import { useSitemapStore } from '~/stores/sitemap';
 import { DeleteSitemapModal } from '@/components/sitemap';
 import {
   IconChevronLeft, IconLoader, IconAlertTriangle, IconCopy, IconTrash,
-  IconCheck, IconX, IconSitemap, IconCalendar
+  IconCheck, IconX, IconSitemap, IconCalendar, IconDownload
 } from '@tabler/icons-vue';
 import type { ShortLinkSitemap } from '@/types';
 
@@ -245,6 +254,27 @@ const copyXmlToClipboard = async () => {
     console.error('Erreur lors de la copie:', err);
     showFloatingNotification('Impossible de copier le contenu XML.', 'error');
   }
+};
+
+const downloadSitemapXml = () => {
+  if (!sitemap.value?.sitemapXml) {
+    showFloatingNotification('Aucun contenu XML à télécharger.', 'error');
+    return;
+  }
+
+  const filename = `sitemap-${sitemap.value.title?.replace(/\s/g, '-') || sitemap.value.id}.xml`;
+  const blob = new Blob([sitemap.value.sitemapXml], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob); // Correction ici: `createObjectURL`
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  showFloatingNotification('Sitemap téléchargé !', 'success');
 };
 
 const confirmDelete = () => {

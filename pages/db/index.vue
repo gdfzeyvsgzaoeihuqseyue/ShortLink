@@ -6,7 +6,7 @@
         <p class="text-gray-600">Gérez et analysez vos liens raccourcis</p>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div class="card p-6">
           <div class="flex items-center">
             <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -54,9 +54,33 @@
             </div>
           </div>
         </div>
+
+        <div class="card p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <IconSitemap class="w-6 h-6 text-blue-600" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Total Sitemaps</p>
+              <p class="text-2xl font-bold text-gray-900">{{ totalSitemaps }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <IconFileText class="w-6 h-6 text-green-600" />
+            </div>
+            <div class="ml-4">
+              <p class="text-sm text-gray-600">Robots.txt configs</p>
+              <p class="text-2xl font-bold text-gray-900">{{ totalRobotsTxtConfigs }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Liens récents et QR Codes récents -->
+      <!-- Récents -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <!-- Liens récents -->
         <div class="card p-6">
@@ -162,12 +186,106 @@
             </div>
           </div>
         </div>
+
+        <!-- Sitemaps récents -->
+        <div class="card p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">Sitemaps récents</h2>
+            <div class="flex gap-2">
+              <button @click="openGenerateSitemapModal" class="flex items-center btn-primary text-sm px-3 py-2">
+                <IconPlus class="w-4 h-4 mr-1" />
+                Nouveau
+              </button>
+              <button @click="refreshSitemaps" class="btn-secondary text-sm px-3 py-2">
+                <IconRefresh class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div v-if="sitemapStore.loading" class="text-center py-8">
+            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
+          </div>
+          <div v-else-if="recentSitemaps.length === 0" class="text-center py-8">
+            <IconSitemap class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p class="text-gray-500 mb-4">Aucun Sitemap créé</p>
+            <button @click="openGenerateSitemapModal" class="btn-primary text-sm">
+              Générer un Sitemap
+            </button>
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="sitemap in recentSitemaps" :key="sitemap.id"
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex-1 min-w-0">
+                <NuxtLink :to="`/db/sitemap/${sitemap.id}`"
+                  class="text-sm font-medium text-gray-900 hover:underline truncate block" :title="sitemap.title || sitemap.url">
+                  {{ truncateWord(sitemap.title || sitemap.url, 40) }}
+                </NuxtLink>
+                <div class="flex items-center space-x-4 mt-1">
+                  <span class="text-xs text-gray-500">{{ sitemap.urlsCount }} URLs</span>
+                  <span class="text-xs text-gray-500">{{ formatDate(sitemap.lastGenerated) }}</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 flex-shrink-0">
+                <NuxtLink :to="`/db/sitemap/${sitemap.id}`" class="text-gray-400 hover:text-primary-600 p-1">
+                  <IconExternalLink class="w-4 h-4" />
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Robots.txt récents -->
+        <div class="card p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">Robots.txt récents</h2>
+            <div class="flex gap-2">
+              <button @click="openGenerateRobotsTxtModal" class="flex items-center btn-primary text-sm px-3 py-2">
+                <IconPlus class="w-4 h-4 mr-1" />
+                Nouveau
+              </button>
+              <button @click="refreshRobotsTxtConfigs" class="btn-secondary text-sm px-3 py-2">
+                <IconRefresh class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div v-if="robotsTxtStore.loading" class="text-center py-8">
+            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
+          </div>
+          <div v-else-if="recentRobotsTxtConfigs.length === 0" class="text-center py-8">
+            <IconFileText class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p class="text-gray-500 mb-4">Aucune configuration robots.txt créée</p>
+            <button @click="openGenerateRobotsTxtModal" class="btn-primary text-sm">
+              Générer un robots.txt
+            </button>
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="config in recentRobotsTxtConfigs" :key="config.id"
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex-1 min-w-0">
+                <NuxtLink :to="`/db/robotstxt/${config.id}`"
+                  class="text-sm font-medium text-gray-900 hover:underline truncate block" :title="config.title">
+                  {{ truncateWord(config.title, 40) }}
+                </NuxtLink>
+                <div class="flex items-center space-x-4 mt-1">
+                  <span class="text-xs text-gray-500">User-agents: {{ Object.keys(config.userAgents).join(', ') }}</span>
+                  <span class="text-xs text-gray-500">{{ formatDate(config.lastGenerated) }}</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 flex-shrink-0">
+                <NuxtLink :to="`/db/robotstxt/${config.id}`" class="text-gray-400 hover:text-primary-600 p-1">
+                  <IconExternalLink class="w-4 h-4" />
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Actions rapides -->
       <div class="card p-6">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Actions rapides</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           <button @click="openCreateLinkModal"
             class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors">
             <div class="text-center">
@@ -184,6 +302,22 @@
             </div>
           </NuxtLink>
 
+          <button @click="openGenerateSitemapModal"
+            class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors">
+            <div class="text-center">
+              <IconSitemap class="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p class="text-sm font-medium text-gray-700">Gérer Sitemaps</p>
+            </div>
+          </button>
+
+          <button @click="openGenerateRobotsTxtModal"
+            class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors">
+            <div class="text-center">
+              <IconFileText class="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p class="text-sm font-medium text-gray-700">Gérer Robots.txt</p>
+            </div>
+          </button>
+          
           <NuxtLink to="/db/analytics"
             class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors">
             <div class="text-center">
@@ -193,12 +327,6 @@
           </NuxtLink>
         </div>
       </div>
-
-      <EditLinkModal :visible="showEditModal" :link="linkToEdit" :loading="linksStore.loading" :error="linksStore.error"
-        @submit="updateLinkFromModal" @cancel="cancelEdit" />
-
-      <DeleteLinkModal :visible="showDeleteModal" :link="linkToDelete" :loading="linksStore.loading" @confirm="deleteLink"
-        @cancel="cancelDelete" />
     </div>
 
     <AppNotification :isVisible="showNotification" :message="notificationMessage" :type="notificationType"
@@ -206,15 +334,29 @@
 
     <CreateLinkModal :visible="showCreateLinkModal" @close="closeCreateLinkModal"
       @link-created="handleLinkCreatedAndRefresh" />
+
+    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading" :error="sitemapStore.error"
+      @submit="handleGenerateSitemap" @cancel="closeGenerateSitemapModal" />
+
+    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading" :error="robotsTxtStore.error"
+      @submit="handleGenerateRobotsTxt" @cancel="closeGenerateRobotsTxtModal" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useLinksStore } from '~/stores/links';
-import type { ShortLink } from '~/types';
-import { IconChartBar, IconClick, IconCopy, IconDownload, IconExternalLink, IconLink, IconLoader, IconPlus, IconQrcode, IconRefresh, IconTrendingUp, IconClearAll } from '@tabler/icons-vue'
-import { CreateLinkModal, DeleteLinkModal, EditLinkModal } from '@/components/link'
+import { useQRCodeStore } from '~/stores/qrcode';
+import { useSitemapStore } from '~/stores/sitemap';
+import { useRobotsTxtStore } from '~/stores/robotstxt';
+import type { ShortLink, SitemapGenerationOptions, GenerateSitemapResponse, GenerateRobotsTxtPayload, GenerateRobotsTxtResponse } from '~/types';
+import {
+  IconChartBar, IconClick, IconCopy, IconDownload, IconExternalLink, IconLink, IconLoader,
+  IconPlus, IconQrcode, IconRefresh, IconTrendingUp, IconClearAll, IconSitemap, IconFileText
+} from '@tabler/icons-vue'
+import { CreateLinkModal } from '@/components/link'
+import { GenerateSitemapModal } from '@/components/sitemap'; 
+import { GenerateRobotsTxtModal } from '@/components/robotstxt'; 
 
 // Interface pour les QR Codes
 interface QRCode {
@@ -236,8 +378,9 @@ definePageMeta({
 });
 
 const linksStore = useLinksStore();
-
-// État pour les QR Codes
+const qrStore = useQRCodeStore();
+const sitemapStore = useSitemapStore();
+const robotsTxtStore = useRobotsTxtStore();
 const recentQRCodes = ref<QRCode[]>([]);
 const qrCodesLoading = ref(false);
 const qrCodesError = ref('');
@@ -248,6 +391,8 @@ const showDeleteModal = ref(false);
 const linkToEdit = ref<ShortLink | null>(null);
 const linkToDelete = ref<ShortLink | null>(null);
 const showCreateLinkModal = ref(false);
+const showGenerateSitemapModal = ref(false); 
+const showGenerateRobotsTxtModal = ref(false); 
 
 // Notifications
 const notificationMessage = ref('');
@@ -282,6 +427,16 @@ watch(() => linksStore.error, (newError) => {
     showFloatingNotification(newError, 'error');
   }
 });
+watch(() => sitemapStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
+watch(() => robotsTxtStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
+  }
+});
 
 // Récupération des QR Codes
 const fetchQRCodes = async () => {
@@ -304,14 +459,18 @@ const fetchQRCodes = async () => {
 onMounted(async () => {
   await linksStore.fetchLinks();
   await fetchQRCodes();
+  await sitemapStore.fetchSitemaps(); 
+  await robotsTxtStore.fetchRobotsTxtConfigs(); 
 });
 
-// Computed properties pour les statistiques
+// Statistiques
 const totalLinks = computed(() => linksStore.pagination.totalLinks);
 const totalClicks = computed(() => linksStore.stats.totalClicks);
-const totalQRCodes = computed(() => recentQRCodes.value.length);
+const totalQRCodes = computed(() => qrStore.totalQRCodes);
+const totalSitemaps = computed(() => sitemapStore.pagination.totalSitemaps); 
+const totalRobotsTxtConfigs = computed(() => robotsTxtStore.pagination.totalConfigs); 
+
 const monthlyClicks = computed(() => {
-  // Calculer les clics du mois en cours
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -332,6 +491,20 @@ const recentLinks = computed(() => {
       const bTime = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
       return bTime - aTime;
     })
+    .slice(0, 10);
+});
+
+// Sitemaps récents
+const recentSitemaps = computed(() => {
+  return [...sitemapStore.sitemaps]
+    .sort((a, b) => new Date(b.lastGenerated).getTime() - new Date(a.lastGenerated).getTime())
+    .slice(0, 10);
+});
+
+// Robots.txt récents
+const recentRobotsTxtConfigs = computed(() => {
+  return [...robotsTxtStore.robotsTxtConfigs]
+    .sort((a, b) => new Date(b.lastGenerated).getTime() - new Date(a.lastGenerated).getTime())
     .slice(0, 10);
 });
 
@@ -380,46 +553,59 @@ const downloadQRCode = (qrCode: QRCode) => {
   document.body.removeChild(link);
 };
 
-const updateLinkFromModal = async (newUrl: string) => {
-  if (!linkToEdit.value) return;
-  linksStore.clearError();
-
-  const ok = await linksStore.updateLink(linkToEdit.value.id, newUrl);
-  if (ok) {
-    showEditModal.value = false;
-    linkToEdit.value = null;
-    showFloatingNotification('Lien mis à jour avec succès !', 'success');
-  } else {
-    showFloatingNotification(linksStore.error || 'Erreur lors de la mise à jour.', 'error');
+// Fonctions d'actualisation
+const refreshSitemaps = async () => {
+  await sitemapStore.fetchSitemaps();
+  if (!sitemapStore.error) {
+    showFloatingNotification('Liste des sitemaps actualisée !', 'success');
   }
 };
 
-const cancelEdit = () => {
-  showEditModal.value = false;
-  linkToEdit.value = null;
-  linksStore.clearError();
-};
-
-const deleteLink = async () => {
-  if (!linkToDelete.value) return;
-
-  linksStore.clearError();
-
-  const deletedSuccessfully = await linksStore.deleteLink(linkToDelete.value.id);
-
-  if (deletedSuccessfully) {
-    showDeleteModal.value = false;
-    linkToDelete.value = null;
-    showFloatingNotification('Lien supprimé avec succès !', 'success');
-  } else {
-    showFloatingNotification(linksStore.error || 'Erreur lors de la suppression.', 'error');
+const refreshRobotsTxtConfigs = async () => {
+  await robotsTxtStore.fetchRobotsTxtConfigs();
+  if (!robotsTxtStore.error) {
+    showFloatingNotification('Liste des configurations robots.txt actualisée !', 'success');
   }
 };
 
-const cancelDelete = () => {
-  showDeleteModal.value = false;
-  linkToDelete.value = null;
-  linksStore.clearError();
+// Fonctions pour la modale Sitemap
+const openGenerateSitemapModal = () => {
+  showGenerateSitemapModal.value = true;
+  sitemapStore.clearError(); 
+};
+
+const closeGenerateSitemapModal = () => {
+  showGenerateSitemapModal.value = false;
+  sitemapStore.clearError();
+};
+
+const handleGenerateSitemap = async (options: SitemapGenerationOptions) => {
+  const result: GenerateSitemapResponse | null = await sitemapStore.generateSitemap(options);
+  if (result) {
+    showFloatingNotification(`Sitemap généré avec succès pour ${result.urlsCount} URLs !`, 'success');
+    closeGenerateSitemapModal();
+  } else {
+  }
+};
+
+// Fonctions pour la modale Robots.txt
+const openGenerateRobotsTxtModal = () => {
+  showGenerateRobotsTxtModal.value = true;
+  robotsTxtStore.clearError(); 
+};
+
+const closeGenerateRobotsTxtModal = () => {
+  showGenerateRobotsTxtModal.value = false;
+  robotsTxtStore.clearError();
+};
+
+const handleGenerateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
+  const result: GenerateRobotsTxtResponse | null = await robotsTxtStore.generateRobotsTxt(payload);
+  if (result) {
+    showFloatingNotification(`Configuration robots.txt "${result.data.title}" générée avec succès !`, 'success');
+    closeGenerateRobotsTxtModal();
+  } else {
+  }
 };
 
 // SEO
