@@ -21,6 +21,24 @@
         </div>
       </div>
 
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Alias personnalisé (optionnel)
+        </label>
+        <div class="relative">
+          <input
+            v-model="alias"
+            type="text"
+            placeholder="monlienperso"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            :disabled="linksStore.loading"
+          />
+        </div>
+        <p v-if="linksStore.error && linksStore.error.includes('alias')" class="mt-2 text-sm text-red-600">
+          {{ linksStore.error }}
+        </p>
+      </div>
+
       <button
         type="submit"
         :disabled="linksStore.loading || !longUrl"
@@ -36,8 +54,8 @@
 
     <!-- Résultat -->
     <div v-if="shortLink" class="mt-8 p-6 bg-success-50 rounded-xl border border-success-200">
-      <h3 class="text-lg font-semibold text-success-800 mb-4">
-        ✅ Lien raccourci avec succès !
+      <h3 class="lg:text-left text-lg font-semibold text-success-800 mb-4 text-center">
+        Lien raccourci avec succès !
       </h3>
       <div class="space-y-3">
         <div>
@@ -76,12 +94,13 @@ const emit = defineEmits(['linkCreated']);
 const linksStore = useLinksStore();
 
 const longUrl = ref('');
+const alias = ref(''); 
 const shortLink = ref(null);
 const copied = ref(false);
 const shortUrlInput = ref(null);
 
 const notificationMessage = ref('');
-const notificationType = ref<'success' | 'error' | 'info'>('success');
+const notificationType = ref('success');
 const showNotification = ref(false);
 let notificationTimeout = null;
 
@@ -115,13 +134,14 @@ const shortenUrl = async () => {
   linksStore.clearError();
   shortLink.value = null;
 
-  const result = await linksStore.createShortLink(longUrl.value);
+  const result = await linksStore.createShortLink(longUrl.value, alias.value.trim() || undefined);
 
   if (result) {
     shortLink.value = result;
     showFloatingNotification('Lien raccourci avec succès !', 'success');
     emit('linkCreated', result); 
     longUrl.value = '';
+    alias.value = ''; 
   }
 };
 

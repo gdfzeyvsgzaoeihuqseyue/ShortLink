@@ -20,14 +20,14 @@ export const useLinksStore = defineStore('links', () => {
   })
 
   // Actions
-  const createShortLink = async (longUrl: string): Promise<ShortLink | null> => {
+  const createShortLink = async (longUrl: string, alias?: string): Promise<ShortLink | null> => {
     loading.value = true
     error.value = ''
 
     try {
       const response = await useApiFetch<CreateLinkResponse>('/shortlinks', {
         method: 'POST',
-        body: { longUrl }
+        body: { longUrl, alias } 
       });
 
       const newLink = response.link
@@ -42,7 +42,11 @@ export const useLinksStore = defineStore('links', () => {
       return newLink
     } catch (err: any) {
       console.error('Erreur lors de la création du lien:', err)
-      error.value = err.data?.message || 'Une erreur est survenue lors de la création du lien'
+      if (err.status === 409 && err.data?.message?.includes('alias')) {
+        error.value = err.data?.message || 'L\'alias fourni est déjà utilisé.';
+      } else {
+        error.value = err.data?.message || 'Une erreur est survenue lors de la création du lien';
+      }
       return null
     } finally {
       loading.value = false

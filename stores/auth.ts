@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Logique de connexion en mode démo
-    if (usernameInput === 'demo-accunt@etq.com' && passwordInput === '_Th!sIsJustD€m0P@55w0rd-') {
+    if (usernameInput === 'demo-accunt@eqt.com' && passwordInput === '_Th!sIsJustD€m0P@55w0rd-') {
       isLoggedIn.value = true;
       if (process.client) {
         localStorage.setItem('isLoggedIn', 'true');

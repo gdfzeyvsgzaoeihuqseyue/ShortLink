@@ -91,7 +91,7 @@ const username = ref('');
 const password = ref('');
 const isDemoAccountSelected = ref(false);
 
-const DEMO_USERNAME = 'demo-accunt@etq.com';
+const DEMO_USERNAME = 'demo-accunt@eqt.com';
 const DEMO_PASSWORD = '_Th!sIsJustD€m0P@55w0rd-';
 
 const toggleDemoAccount = () => {
