@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, readonly } from 'vue';
 import { useApiFetch } from '~/utils/api';
-import type { ShortLinkSitemap, SitemapGenerationOptions, GenerateSitemapResponse, GetSitemapsResponse, GetSitemapResponse, UpdateSitemapResponse, DeleteSitemapResponse } from '@/types';
+import type { ShortLinkSitemap, SitemapGenerationOptions, GenerateSitemapResponse, GetSitemapsResponse, GetSitemapResponse, UpdateSitemapResponse, DeleteSitemapResponse, SitemapProgressMessage } from '@/types';
 
 export const useSitemapStore = defineStore('sitemap', () => {
   // State
@@ -16,24 +16,64 @@ export const useSitemapStore = defineStore('sitemap', () => {
     sitemapsOnPage: 0,
   });
 
+  const sitemapProgressMessages = ref<SitemapProgressMessage[]>([]);
+  const sitemapScannedUrls = ref<string[]>([]);
+  const sitemapIgnoredUrls = ref<string[]>([]);
+  const sitemapErrorMessages = ref<string[]>([]);
+  const sitemapProgressLoading = ref(false);
+
   // Actions
   const generateSitemap = async (options: SitemapGenerationOptions): Promise<GenerateSitemapResponse | null> => {
-    loading.value = true;
+    sitemapProgressLoading.value = true;
     error.value = null;
+    sitemapProgressMessages.value = [];
+    sitemapScannedUrls.value = [];
+    sitemapIgnoredUrls.value = [];
+    sitemapErrorMessages.value = [];
+
+    const nuxtApp = useNuxtApp();
+    const socket = nuxtApp.$socket;
+
+    if (!socket || !socket.connected) {
+      error.value = 'Connexion WebSocket non établie. Veuillez réessayer.';
+      sitemapProgressLoading.value = false;
+      return null;
+    }
+
+    const socketId = socket.id;
+
+    const progressListener = (message: SitemapProgressMessage) => {
+      sitemapProgressMessages.value.push(message);
+      if (message.type === 'progress' && message.url) {
+        sitemapScannedUrls.value.push(message.url);
+      } else if (message.type === 'ignored' && message.url) {
+        sitemapIgnoredUrls.value.push(message.url);
+      } else if (message.type === 'error' && message.error) {
+        sitemapErrorMessages.value.push(message.error);
+      }
+    };
+
+    socket.on('sitemapProgress', progressListener);
+
     try {
       const response = await useApiFetch<GenerateSitemapResponse>('/shortlinks/sitemap', {
         method: 'POST',
-        body: options,
+        body: { ...options, socketId },
       });
-      // Après génération, rafraîchir la liste des sitemaps
+
+      // Raffarichir la liste
       await fetchSitemaps(pagination.value.currentPage, pagination.value.sitemapsOnPage);
       return response;
     } catch (err: any) {
       console.error('Erreur lors de la génération du sitemap:', err);
       error.value = err.data?.message || 'Une erreur est survenue lors de la génération du sitemap.';
+      if (error.value) {
+        sitemapErrorMessages.value.push(error.value);
+      }
       return null;
     } finally {
-      loading.value = false;
+      sitemapProgressLoading.value = false;
+      socket.off('sitemapProgress', progressListener);
     }
   };
 
@@ -83,7 +123,6 @@ export const useSitemapStore = defineStore('sitemap', () => {
         method: 'PUT',
         body: { title },
       });
-      // Mettre à jour le sitemap dans la liste et le sitemap courant
       const index = sitemaps.value.findIndex(s => s.id === id);
       if (index !== -1) {
         sitemaps.value[index] = response.data;
@@ -108,7 +147,6 @@ export const useSitemapStore = defineStore('sitemap', () => {
       await useApiFetch<DeleteSitemapResponse>(`/shortlinks/sitemap/${id}`, {
         method: 'DELETE',
       });
-      // Supprimer le sitemap de la liste
       sitemaps.value = sitemaps.value.filter(s => s.id !== id);
       pagination.value.totalSitemaps--;
       if (currentSitemap.value && currentSitemap.value.id === id) {
@@ -132,12 +170,26 @@ export const useSitemapStore = defineStore('sitemap', () => {
     currentSitemap.value = null;
   };
 
+  const clearProgress = (): void => {
+    sitemapProgressMessages.value = [];
+    sitemapScannedUrls.value = [];
+    sitemapIgnoredUrls.value = [];
+    sitemapErrorMessages.value = [];
+    sitemapProgressLoading.value = false;
+  };
+
   return {
     sitemaps: readonly(sitemaps),
     currentSitemap: readonly(currentSitemap),
     loading: readonly(loading),
     error: readonly(error),
     pagination: readonly(pagination),
+    sitemapProgressMessages: readonly(sitemapProgressMessages),
+    sitemapScannedUrls: readonly(sitemapScannedUrls),
+    sitemapIgnoredUrls: readonly(sitemapIgnoredUrls),
+    sitemapErrorMessages: readonly(sitemapErrorMessages),
+    sitemapProgressLoading: readonly(sitemapProgressLoading),
+
     generateSitemap,
     fetchSitemaps,
     fetchSitemapById,
@@ -145,5 +197,6 @@ export const useSitemapStore = defineStore('sitemap', () => {
     deleteSitemap,
     clearError,
     clearCurrentSitemap,
+    clearProgress,
   };
 });

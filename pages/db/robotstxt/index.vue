@@ -139,7 +139,7 @@ const userAgentSearchQuery = ref(''); // Pour filtrer par user-agent
 
 const showGenerateModal = ref(false);
 const showDeleteModal = ref(false);
-const configToDelete = ref<RobotsTxtConfig | null>(null);
+const configToDelete = ref<any | null>(null);
 
 // Notification
 const notificationMessage = ref('');
@@ -178,7 +178,7 @@ onMounted(() => {
   robotsTxtStore.fetchRobotsTxtConfigs();
 });
 
-const filteredConfigs = computed(() => {
+const filteredConfigs = computed<any>(() => {
   let configs = [...robotsTxtStore.robotsTxtConfigs];
 
   // Filtrage par recherche générale

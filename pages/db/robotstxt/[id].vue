@@ -133,7 +133,7 @@ const router = useRouter();
 const robotsTxtStore = useRobotsTxtStore();
 
 const configId = route.params.id as string;
-const config = computed<RobotsTxtConfig | null>(() => robotsTxtStore.currentRobotsTxtConfig);
+const config = computed<any>(() => robotsTxtStore.currentRobotsTxtConfig);
 const copied = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);

@@ -118,6 +118,24 @@
           </div>
         </div>
 
+         <!-- Sites scannés -->
+        <div v-if="sitemap.scannedUrls && sitemap.scannedUrls.length > 0" class="card p-8">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+            <h2 class="text-2xl font-bold text-gray-900">URLs scannées ({{ sitemap.scannedUrls.length }})</h2>
+            <button @click="copyScannedUrlsToClipboard" class="btn-secondary flex items-center justify-center text-sm py-2 px-4">
+              <IconCopy class="w-4 h-4" />
+              <span class="hidden sm:inline ml-2">{{ copiedUrls ? 'Copié!' : 'Copier toutes les URLs' }}</span>
+            </button>
+          </div>
+          <div class="bg-gray-100 p-4 rounded-lg overflow-auto text-sm max-h-96">
+            <ul class="list-disc list-inside space-y-1">
+              <li v-for="(url, index) in sitemap.scannedUrls" :key="index" class="break-all">
+                <a :href="url" target="_blank" class="text-primary-600 hover:underline">{{ url }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <!-- Contenu XML -->
         <div class="card p-8">
           <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
@@ -126,7 +144,7 @@
               <button @click="copyXmlToClipboard"
                 class="btn-secondary flex items-center justify-center text-sm py-2 px-4">
                 <IconCopy class="w-4 h-4" />
-                <span class="hidden sm:inline ml-2">{{ copied ? 'Copié!' : 'Copier XML' }}</span>
+                <span class="hidden sm:inline ml-2">{{ copiedXml ? 'Copié!' : 'Copier XML' }}</span>
               </button>
               <button @click="downloadSitemapXml"
                 class="btn-primary flex items-center justify-center text-sm py-2 px-4">
@@ -177,9 +195,10 @@ const router = useRouter();
 const sitemapStore = useSitemapStore();
 
 const sitemapId = route.params.id as string;
-const sitemap = computed<ShortLinkSitemap | null>(() => sitemapStore.currentSitemap);
+const sitemap = computed<any>(() => sitemapStore.currentSitemap);
 const editableTitle = ref('');
-const copied = ref(false);
+const copiedXml = ref(false); 
+const copiedUrls = ref(false);
 const showDeleteModal = ref(false);
 
 // Notification
@@ -208,7 +227,7 @@ const closeNotification = () => {
   }
 };
 
-// Watch pour store errors
+// Watch for store errors
 watch(() => sitemapStore.error, (newError) => {
   if (newError) {
     showFloatingNotification(newError, 'error');
@@ -247,12 +266,25 @@ const copyXmlToClipboard = async () => {
   if (!sitemap.value?.sitemapXml) return;
   try {
     await navigator.clipboard.writeText(sitemap.value.sitemapXml);
-    copied.value = true;
+    copiedXml.value = true;
     showFloatingNotification('Contenu XML copié !', 'success');
-    setTimeout(() => (copied.value = false), 2000);
+    setTimeout(() => (copiedXml.value = false), 2000);
   } catch (err) {
     console.error('Erreur lors de la copie:', err);
     showFloatingNotification('Impossible de copier le contenu XML.', 'error');
+  }
+};
+
+const copyScannedUrlsToClipboard = async () => {
+  if (!sitemap.value?.scannedUrls || sitemap.value.scannedUrls.length === 0) return;
+  try {
+    await navigator.clipboard.writeText(sitemap.value.scannedUrls.join('\n'));
+    copiedUrls.value = true;
+    showFloatingNotification('URLs scannées copiées !', 'success');
+    setTimeout(() => (copiedUrls.value = false), 2000);
+  } catch (err) {
+    console.error('Erreur lors de la copie des URLs:', err);
+    showFloatingNotification('Impossible de copier les URLs scannées.', 'error');
   }
 };
 
@@ -264,7 +296,7 @@ const downloadSitemapXml = () => {
 
   const filename = `sitemap-${sitemap.value.title?.replace(/\s/g, '-') || sitemap.value.id}.xml`;
   const blob = new Blob([sitemap.value.sitemapXml], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob); // Correction ici: `createObjectURL`
+  const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;

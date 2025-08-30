@@ -81,6 +81,7 @@ export interface LinkMetadata {
   twitterCard?: string;
   allOgImages?: readonly string[]; 
   allImgTags?: readonly string[];
+  lastUpdated?: number; // Add this field
 }
 
 export interface ExtractMetadataResponse {
@@ -261,6 +262,7 @@ export interface ShortLinkSitemap {
   lastGenerated: string; 
   createdAt: string;
   updatedAt: string;
+  scannedUrls?: string[];
 }
 
 export interface SitemapGenerationOptions {
@@ -276,6 +278,7 @@ export interface SitemapGenerationOptions {
   ignoreNonCanonical?: boolean;
   includeImages?: boolean;
   title?: string;
+  socketId?: string; // Add this field for backend communication
 }
 
 export interface GenerateSitemapResponse {
@@ -312,6 +315,15 @@ export interface DeleteSitemapResponse {
   data: ShortLinkSitemap;
 }
 
+// New interface for real-time sitemap progress messages
+export interface SitemapProgressMessage {
+  type: 'start' | 'info' | 'progress' | 'ignored' | 'error' | 'complete' | 'warning';
+  message?: string;
+  url?: string;
+  reason?: string;
+  error?: string;
+}
+
 
 // ===============================================
 // SOCIALLINKS
@@ -332,4 +344,3 @@ export interface SocialLink {
   icon: any;
   title?: string;
 }
-

@@ -23,7 +23,8 @@
     "date-fns": "^4.1.0",
     "nuxt": "^3.13.0",
     "nuxt-gtag": "^3.0.3",
-    "pinia": "^3.0.3"
+    "pinia": "^3.0.3",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@nuxtjs/google-fonts": "^3.2.0"

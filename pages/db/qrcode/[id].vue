@@ -359,6 +359,23 @@ const duplicateQRCode = () => {
   router.push(`/db/qrcode/create?${queryParams.toString()}`);
 };
 
+const deleteQRCode = async () => {
+  if (!qrStore.currentQRCode) return;
+
+  const success = await qrStore.deleteQRCode(qrStore.currentQRCode.id);
+  if (success) {
+    showFloatingNotification('QR Code supprimé avec succès !', 'success');
+    router.push('/db/qrcode');
+  } else {
+    showFloatingNotification(qrStore.error || 'Erreur lors de la suppression.', 'error');
+    cancelDelete();
+  }
+};
+const cancelDelete = () => {
+  showDeleteModal.value = false;
+  qrStore.clearError();
+};
+
 const shareQRCode = async () => {
   if (!qrStore.currentQRCode) return;
 

@@ -85,7 +85,7 @@
 
             <div v-if="linkMetadata.favicon">
               <label class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
-              <div class="p-3 bg-gray-50 rounded-lg border">
+              <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border">
                 <img :src="linkMetadata.favicon" class="w-6 h-6 mr-2 inline-block" alt="Favicon" />
                 <p class="text-gray-900 inline-block align-middle">{{ linkMetadata.favicon }}</p>
               </div>
@@ -98,6 +98,13 @@
                 class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
                 {{ keyword.trim() }}
               </span>
+            </div>
+          </div>
+
+          <div v-if="linkMetadata.lastUpdated">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Dernière exploration par PGS BOT</label>
+            <div class="p-3 bg-gray-50 rounded-lg border">
+              <p class="text-gray-900">{{ formatDateTime(linkMetadata.lastUpdated) }}</p>
             </div>
           </div>
         </div>
@@ -132,5 +139,17 @@ defineEmits(['refresh']);
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement;
   img.style.display = 'none';
+};
+
+const formatDateTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 };
 </script>

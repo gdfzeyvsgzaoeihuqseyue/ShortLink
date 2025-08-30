@@ -390,14 +390,7 @@ import { useLogsStore } from '~/stores/logs';
 import { useAnalyticsStore } from '~/stores/analytics';
 import { useSitemapStore } from '~/stores/sitemap';
 import { useRobotsTxtStore } from '~/stores/robotstxt';
-import {
-  DeleteLinkModal,
-  EditLinkModal,
-  LinkAnalyticsDetails,
-  LinkMetadataCard,
-  LinkInfoCard,
-  LinkHistoryCard
-} from '@/components/link';
+import { DeleteLinkModal, EditLinkModal, LinkAnalyticsDetails, LinkMetadataCard, LinkInfoCard, LinkHistoryCard } from '@/components/link';
 import { GenerateSitemapModal } from '@/components/sitemap';
 import { GenerateRobotsTxtModal } from '@/components/robotstxt';
 import { IconAlertTriangle, IconChevronLeft, IconLoader, IconSitemap, IconFileText } from '@tabler/icons-vue';
@@ -463,7 +456,7 @@ watch(() => sitemapStore.error, (newError) => {
   }
 });
 
-// Watch for robots.txt store errors
+// Watch pour robots.txt store errors
 watch(() => robotsTxtStore.error, (newError) => {
   if (newError) {
     showFloatingNotification(newError, 'error');
@@ -476,9 +469,6 @@ onMounted(async () => {
       linksStore.fetchLinkById(linkId),
       logsStore.fetchLinkLogs(linkId),
     ]);
-    if (linksStore.currentLink && !linksStore.currentLink.metadata) {
-      await linksStore.extractMetadata(linksStore.currentLink.longUrl);
-    }
   }
 });
 
@@ -556,11 +546,11 @@ const showDeleteInfo = () => {
 };
 
 const deleteLink = async () => {
-  if (!linkToDelete.value) return; // Utiliser linkToDelete.value ici
+  if (!linkToDelete.value) return; 
 
   linksStore.clearError();
 
-  const deletedSuccessfully = await linksStore.deleteLink(linkToDelete.value.id); // Utiliser linkToDelete.value.id
+  const deletedSuccessfully = await linksStore.deleteLink(linkToDelete.value.id); 
 
   if (deletedSuccessfully) {
     showDeleteModal.value = false;
@@ -617,21 +607,20 @@ const handleGenerateSitemap = async (options: SitemapGenerationOptions) => {
     showFloatingNotification(`Sitemap généré avec succès pour ${result.urlsCount} URLs !`, 'success');
     closeGenerateSitemapModal();
   } else {
-    // Error message is already handled by the watcher
   }
 };
 
-// Robots.txt generation functions
+// Robots.txt 
 const initialRobotsTxtConfig = ref<RobotsTxtConfig | null>(null);
 
 const openGenerateRobotsTxtModal = () => {
   if (linksStore.currentLink) {
     // Pré-remplir avec l'URL du lien court comme sitemapUrl potentiel
     initialRobotsTxtConfig.value = {
-      id: '', // Not relevant for initial config
+      id: '', 
       title: `robots.txt pour ${linksStore.currentLink.shortCode}`,
       userAgents: { '*': { allow: ['/'], disallow: [] } },
-      sitemapUrl: linksStore.currentLink.shortLink, // Utiliser le lien court comme sitemapUrl par défaut
+      sitemapUrl: linksStore.currentLink.shortLink, 
       customRules: '',
       lastGenerated: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -654,7 +643,6 @@ const handleGenerateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
   const result: GenerateRobotsTxtResponse | null = await robotsTxtStore.generateRobotsTxt(payload);
   if (result) {
     showFloatingNotification(`Configuration robots.txt "${result.data.title}" générée avec succès !`, 'success');
-    // Optionnel: télécharger le fichier directement après génération
     const blob = new Blob([result.robotsTxtContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -667,7 +655,6 @@ const handleGenerateRobotsTxt = async (payload: GenerateRobotsTxtPayload) => {
 
     closeGenerateRobotsTxtModal();
   } else {
-    // Error message is already handled by the watcher
   }
 };
 
