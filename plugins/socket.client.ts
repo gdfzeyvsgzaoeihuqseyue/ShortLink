@@ -29,5 +29,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     console.error('Socket.IO connection error:', err.message);
   });
 
+  socket.on('socialsContactsProgress', (message: any) => {
+    console.log('Socials Contacts Progress:', message);
+  });
+
   nuxtApp.provide('socket', socket);
 });

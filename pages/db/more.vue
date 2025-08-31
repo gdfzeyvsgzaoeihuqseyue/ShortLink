@@ -1,0 +1,65 @@
+<template>
+  <div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Outils d'analyse avancés</h1>
+        <p class="text-gray-600">Explorez des fonctionnalités supplémentaires pour vos URLs</p>
+      </div>
+
+      <!-- Onglets de navigation -->
+      <div class="flex bg-gray-100 rounded-lg p-1 mb-6 max-w-2xl mx-auto">
+        <button @click="activeTab = 'socialsContacts'" :class="[
+          'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          activeTab === 'socialsContacts' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+        ]">
+          Extraction de contacts
+        </button>
+        <button @click="activeTab = 'pageSpeed'" :class="[
+          'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          activeTab === 'pageSpeed' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+        ]">
+          Analyse PageSpeed
+        </button>
+      </div>
+
+      <!-- Contenu des onglets -->
+      <div class="grid grid-cols-1 gap-8">
+        <!-- Section Extraction d'informations de contact et sociales -->
+        <div v-if="activeTab === 'socialsContacts'" class="card p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Extraction d'informations de contact et sociales</h2>
+          <p class="text-gray-600 mb-4">
+            Extrayez les adresses email, numéros de téléphone et liens de réseaux sociaux d'une URL.
+          </p>
+          <SocialsContactsExtractionForm />
+        </div>
+
+        <!-- Section Analyse PageSpeed -->
+        <div v-else-if="activeTab === 'pageSpeed'" class="card p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Analyse PageSpeed</h2>
+          <p class="text-gray-600 mb-4">
+            Obtenez un score de performance et des métriques clés pour l'optimisation de votre site web.
+          </p>
+          <PageSpeedAnalysisForm />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { SocialsContactsExtractionForm } from '@/components/more';
+import { PageSpeedAnalysisForm } from '@/components/more';
+
+definePageMeta({
+  layout: 'dashboard',
+});
+
+const activeTab = ref('socialsContacts'); 
+
+useSeoMeta({
+  title: 'Outils avancés',
+  description: 'Outils d\'analyse avancés pour l\'extraction d\'informations de contact et sociales, et l\'analyse PageSpeed.',
+  robots: 'noindex, nofollow',
+});
+</script>

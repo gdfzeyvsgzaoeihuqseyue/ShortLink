@@ -98,6 +98,16 @@
             <span v-if="!sidebarCollapsed || isMobile">Analytics</span>
           </NuxtLink>
 
+           <NuxtLink to="/db/more" :class="[
+            'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+            $route.path === '/db/more'
+              ? 'bg-primary-100 text-primary-700'
+              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+          ]">
+            <IconFilterStar class="w-5 h-5 mr-3 flex-shrink-0" />
+            <span v-if="!sidebarCollapsed || isMobile">Analyse avancés</span>
+          </NuxtLink>
+
           <div class="border-t border-gray-200 my-4"></div>
 
           <!-- Menu de profil déroulant -->
@@ -183,7 +193,7 @@ import { useAuthStore } from '~/stores/auth';
 import {
   IconArrowLeft, IconChartHistogram, IconChevronsLeft, IconDeviceDesktop,
   IconLink, IconMenuDeep, IconQrcode, IconSitemap, IconRobot, IconSettings, IconX,
-  IconUserCircle, IconChevronDown, IconLogout
+  IconUserCircle, IconChevronDown, IconLogout, IconFilterStar
 } from '@tabler/icons-vue'
 import { useSharedFiles } from '~/stores/sharedFiles';
 
@@ -207,6 +217,7 @@ const pageTitle = computed(() => {
   if (path === '/db/analytics') return 'Analytics'
   if (path === '/db/sitemap') return 'Sitemap'
   if (path === '/db/robotstxt') return 'Robots.txt'
+    if (path === '/db/more') return 'Analyse avancés'
   if (path === '/db/settings') return 'Paramètres'
   return 'Dashboard'
 })

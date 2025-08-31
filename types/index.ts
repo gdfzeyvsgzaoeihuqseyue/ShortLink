@@ -81,7 +81,7 @@ export interface LinkMetadata {
   twitterCard?: string;
   allOgImages?: readonly string[]; 
   allImgTags?: readonly string[];
-  lastUpdated?: number; // Add this field
+  lastUpdated?: number; 
 }
 
 export interface ExtractMetadataResponse {
@@ -191,9 +191,6 @@ export interface RedirectResponse {
 export interface UserAgentRules {
   allow?: string[]; 
   disallow?: string[]; 
-
-  // allow?: readonly string[]; 
-  // disallow?: readonly string[];
 }
 
 export interface RobotsTxtConfig {
@@ -278,7 +275,7 @@ export interface SitemapGenerationOptions {
   ignoreNonCanonical?: boolean;
   includeImages?: boolean;
   title?: string;
-  socketId?: string; // Add this field for backend communication
+  socketId?: string; 
 }
 
 export interface GenerateSitemapResponse {
@@ -315,7 +312,6 @@ export interface DeleteSitemapResponse {
   data: ShortLinkSitemap;
 }
 
-// New interface for real-time sitemap progress messages
 export interface SitemapProgressMessage {
   type: 'start' | 'info' | 'progress' | 'ignored' | 'error' | 'complete' | 'warning';
   message?: string;
@@ -343,4 +339,51 @@ export interface SocialLink {
   href: string;
   icon: any;
   title?: string;
+}
+
+
+// ===============================================
+//WEBTOOLS
+// ===============================================
+// PageSpeed
+export interface PageSpeedMetric {
+  title: string;
+  displayValue: string;
+  score: number;
+}
+
+export interface PageSpeedResult {
+  url: string;
+  performanceScore: number;
+  metrics: {
+    'first-contentful-paint'?: PageSpeedMetric;
+    'largest-contentful-paint'?: PageSpeedMetric;
+    'interactive'?: PageSpeedMetric;
+    'speed-index'?: PageSpeedMetric;
+    'total-blocking-time'?: PageSpeedMetric;
+    'cumulative-layout-shift'?: PageSpeedMetric;
+  };
+}
+
+// SocialsContacts
+export interface SocialLinks {
+  facebook?: string;
+  twitter?: string;
+  linkedin?: string;
+  instagram?: string;
+  youtube?: string;
+  github?: string;
+  [key: string]: string | undefined; 
+}
+
+export interface ExtractionResult {
+  emails: string[];
+  phoneNumbers: string[];
+  socialLinks: SocialLinks;
+}
+
+export interface ProgressMessage {
+  type: 'progress' | 'info' | 'warning' | 'error' | 'success' | 'start' | 'complete';
+  message: string;
+  url?: string;
 }

@@ -102,7 +102,7 @@
           </div>
 
           <div v-if="linkMetadata.lastUpdated">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Dernière exploration par PGS BOT</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Dernière exploration par PGSBOT</label>
             <div class="p-3 bg-gray-50 rounded-lg border">
               <p class="text-gray-900">{{ formatDateTime(linkMetadata.lastUpdated) }}</p>
             </div>
