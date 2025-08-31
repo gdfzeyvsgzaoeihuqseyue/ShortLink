@@ -82,7 +82,7 @@
               <label for="ignoreNofollow" class="ml-2 text-sm font-medium text-gray-700">Ignorer "nofollow"</label>
             </div>
             <div class="flex items-center">
-              <input id="ignoreNonCanonical" v-model="form.ignoreNonCanonical" 
+              <input id="ignoreNonCanonical" v-model="form.ignoreNonCanonical" type="checkbox"
                 class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" :disabled="sitemapStore.sitemapProgressLoading" />
               <label for="ignoreNonCanonical" class="ml-2 text-sm font-medium text-gray-700">Ignorer non-canonique</label>
             </div>
