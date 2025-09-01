@@ -5,6 +5,10 @@ type FooterData = {
   brandUrl: string 
 }
 
+type CustomData = {
+  sl: { url: string }
+}
+
 export const useSharedFiles = defineStore('sharedFiles', () => {
   const runtimeConfig = useRuntimeConfig();
   const SHARED_URL = runtimeConfig.public.pgsSharedFiles;
@@ -24,15 +28,17 @@ export const useSharedFiles = defineStore('sharedFiles', () => {
 
     //JSON
     data: {
-      footer: `${SHARED_URL}/JSON/pgs.json`
+      footer: `${SHARED_URL}/JSON/pgs.json`,
+      custom: `${SHARED_URL}/JSON/custom.json`
     }
   };
 
   // Getter pour les données JSON
   async function getFooterData() {
     try {
-      return await $fetch<{ brand: string; brandUrl: string }>(paths.data.footer);
+      return await $fetch<FooterData>(paths.data.footer);
     } catch (err) {
+      console.error('Erreur lors du chargement des données footer:', err);
       return {
         brand: 'PGS SARL',
         brandUrl: '#'
@@ -40,8 +46,19 @@ export const useSharedFiles = defineStore('sharedFiles', () => {
     }
   }
 
+  async function getBaseUrl() {
+    try {
+      const customData = await $fetch<CustomData>(paths.data.custom);
+      return customData.sl.url;
+    } catch (err) {
+      console.error('Erreur lors du chargement des données custom:', err);
+      return '#'; 
+    }
+  }
+
   return {
     paths,
-    getFooterData
+    getFooterData,
+    getBaseUrl
   };
 });

@@ -22,24 +22,16 @@
         </button>
       </div>
 
-      <!-- Contenu des onglets -->
+      <!-- Onglets -->
       <div class="grid grid-cols-1 gap-8">
-        <!-- Section Extraction d'informations de contact et sociales -->
+        <!-- Section Extraction -->
         <div v-if="activeTab === 'socialsContacts'" class="card p-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Extraction d'informations de contact et sociales</h2>
-          <p class="text-gray-600 mb-4">
-            Extrayez les adresses email, numéros de téléphone et liens de réseaux sociaux d'une URL.
-          </p>
-          <SocialsContactsExtractionForm />
+          <SocialsContactsExtractor />
         </div>
 
         <!-- Section Analyse PageSpeed -->
         <div v-else-if="activeTab === 'pageSpeed'" class="card p-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Analyse PageSpeed</h2>
-          <p class="text-gray-600 mb-4">
-            Obtenez un score de performance et des métriques clés pour l'optimisation de votre site web.
-          </p>
-          <PageSpeedAnalysisForm />
+          <PageSpeedChecker />
         </div>
       </div>
     </div>
@@ -48,14 +40,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { SocialsContactsExtractionForm } from '@/components/more';
-import { PageSpeedAnalysisForm } from '@/components/more';
+import { SocialsContactsExtractor, PageSpeedChecker } from '@/components/more';
 
 definePageMeta({
   layout: 'dashboard',
 });
 
-const activeTab = ref('socialsContacts'); 
+const activeTab = ref('socialsContacts');
 
 useSeoMeta({
   title: 'Outils avancés',

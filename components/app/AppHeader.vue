@@ -139,8 +139,8 @@ const router = useRouter();
 const mobileMenuOpen = ref(false);
 const profileMenuOpen = ref(false);
 
-const profileMenu = ref(null); // Ref for desktop profile dropdown
-const mobileMenu = ref(null); // Ref for mobile menu
+const profileMenu = ref(null); 
+const mobileMenu = ref(null); 
 
 const computedNavItems = computed(() => {
   if (authStore.isLoggedIn) {
@@ -148,7 +148,7 @@ const computedNavItems = computed(() => {
       { label: 'Tarifs', to: '/pricing' },
       { label: 'À propos', to: '/about' },
       { label: 'Contact', to: '/contact' },
-      { label: 'Mon profil', to: '#', isDropdown: true } // Placeholder for dropdown
+      { label: 'Mon profil', to: '#', isDropdown: true }
     ];
   } else {
     return [
@@ -163,7 +163,7 @@ const computedNavItems = computed(() => {
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value;
   if (mobileMenuOpen.value) {
-    profileMenuOpen.value = false; // Close profile menu if mobile menu opens
+    profileMenuOpen.value = false; 
   }
 };
 
@@ -190,13 +190,10 @@ const handleLogoutAndCloseMenu = async () => {
   closeMobileMenuAndProfileMenu();
 };
 
-// Click outside logic
 const handleClickOutside = (event) => {
-  // Close desktop profile menu
   if (profileMenu.value && !profileMenu.value.contains(event.target) && !event.target.closest('.btn-primary')) {
     profileMenuOpen.value = false;
   }
-  // Close mobile menu
   if (mobileMenu.value && !mobileMenu.value.contains(event.target) && !event.target.closest('.md\\:hidden > button')) {
     mobileMenuOpen.value = false;
   }

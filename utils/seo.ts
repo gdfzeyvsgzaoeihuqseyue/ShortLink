@@ -1,6 +1,7 @@
-import { useRuntimeConfig } from '#app';
+import { useRuntimeConfig, useAsyncData } from '#app'
+import { useSharedFiles } from '~/stores/sharedFiles'
 
-type SeoMeta = {
+export type SeoMeta = {
   title: string
   description?: string
   ogImage?: string
@@ -9,32 +10,45 @@ type SeoMeta = {
   robots?: string
 }
 
+export type SeoData = Record<'index' | '403' | 'dashboard', SeoMeta>
 
-export const useSeo = (): Record<string, SeoMeta> => {
-  const runtimeConfig = useRuntimeConfig();
-  const SHARED_URL = runtimeConfig.public.pgsSharedFiles;
-  const baseUrl = "https://stlk.netlify.app";
+export const useSeo = () => {
+  const sharedFiles = useSharedFiles()
+  const runtimeConfig = useRuntimeConfig()
+  const SHARED_URL = runtimeConfig.public.pgsSharedFiles
 
-  return {
-    index: {
-      title: "EasyQuickTrack",
-      description: "Transformez vos liens longs en URLs courtes avec des analyses détaillées. Service gratuit et sécurisé.",
-      ogImage: `${SHARED_URL}/SuitOps_Landing/Hero/index.png`,
-      url: baseUrl,
-      keywords: "url, racourcie, diminuteur, Bénin, PGS, Pro Gestion Soft",
-      robots: 'index, follow',
-    },
+  const { data: allSeoData, pending, error } = useAsyncData<SeoData>(
+    'seoData',
+    async () => {
+      const baseUrl = await sharedFiles.getBaseUrl()
 
-    403: {
-      title: "Accès Interdit",
-      description: "Vous n\'avez pas l\'autorisation d\'accéder à cette page.",
-      robots: 'noindex, nofollow'
-    },
+      return {
+        index: {
+          title: 'EasyQuickTrack',
+          description: "Votre solution complète pour le web. Raccourcissez vos URLs, générez des QR codes, analysez les métadonnées de pages, sitemaps, robots.txt et plus encore pour booster votre SEO.",
+          ogImage: `${SHARED_URL}/SuitOps_Landing/Hero/index.png`,
+          url: baseUrl,
+          keywords: 'url, racourcie, diminuteur, Bénin, PGS, Pro Gestion Soft',
+          robots: 'index, follow',
+        },
+        403: {
+          title: 'Accès Interdit',
+          description: "Vous n'avez pas l'autorisation d'accéder à cette page.",
+          robots: 'noindex, nofollow',
+        },
+        404: {
+          title: 'Page introuvable.',
+          description: "Page introuvable.",
+          robots: 'noindex, nofollow',
+        },
+        dashboard: {
+          title: 'Tableau de bord',
+          description: 'Gérez et analysez vos liens raccourcis.',
+          robots: 'index, follow',
+        },
+      }
+    }
+  )
 
-    dashboard: {
-      title: "Tableau de bord",
-      description: "Gérez et analysez vos liens raccourcis.",
-      robots: 'index, follow',
-    },
-  };
-};
+  return { allSeoData, pending, error }
+}

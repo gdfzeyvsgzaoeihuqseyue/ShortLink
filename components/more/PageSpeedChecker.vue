@@ -1,28 +1,28 @@
 <template>
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900">
+      Vérificateur PageSpeed Insights
+    </h2>
+    <p class="text-gray-600 mb-4">
+      Obtenez un score de performance et des métriques clés pour l'optimisation de votre site web.
+    </p>
+  </div>
+
   <form @submit.prevent="handleSubmit" class="space-y-6">
     <div>
       <label for="pagespeed-url" class="block text-sm font-medium text-gray-700 mb-2">URL à analyser</label>
-      <input
-        id="pagespeed-url"
-        v-model="url"
-        type="url"
-        required
+      <input id="pagespeed-url" v-model="url" type="url" required
         class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-        :disabled="pageSpeedStore.loading"
-        placeholder="https://www.example.com"
-      />
+        :disabled="pageSpeedStore.loading" placeholder="https://www.example.com" />
     </div>
 
-    <button
-      type="submit"
-      :disabled="pageSpeedStore.loading || !url"
-      class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-    >
+    <button type="submit" :disabled="pageSpeedStore.loading || !url"
+      class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
       <span v-if="pageSpeedStore.loading" class="flex items-center justify-center">
         <IconLoader2 class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
         Analyse en cours...
       </span>
-      <span v-else>Lancer l'analyse PageSpeed</span>
+      <span v-else>Obtenir les données PageSpeed</span>
     </button>
   </form>
 
@@ -46,8 +46,9 @@
       <div>
         <h5 class="font-medium text-gray-700 mb-2">Métriques clés:</h5>
         <ul class="space-y-2">
-          <li v-for="(metric, key) in pageSpeedStore.result.metrics" :key="key" class="flex items-center justify-between">
-            <template v-if="metric"> <!-- Correction ici -->
+          <li v-for="(metric, key) in pageSpeedStore.result.metrics" :key="key"
+            class="flex items-center justify-between">
+            <template v-if="metric">
               <span class="text-gray-600">{{ metric.title }}:</span>
               <span class="font-semibold" :class="getScoreColorClass(metric.score * 100)">
                 {{ metric.displayValue }}

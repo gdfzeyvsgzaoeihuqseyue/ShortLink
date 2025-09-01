@@ -130,10 +130,7 @@ const sharedFiles = useSharedFiles();
 const router = useRouter()
 
 // SEO
-useHead({
-  title: 'Erreur 404',
-  meta: [{ name: 'description', content: 'Page introuvable.' }]
-})
+usePageSeo('404')
 
 definePageMeta({
   layout: false

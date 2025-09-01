@@ -1,4 +1,4 @@
-import PageSpeedAnalysisForm from './pageSpeedAnalysisForm';
-import SocialsContactsExtractionForm from './socialsContactsExtractionForm';
+import PageSpeedChecker from './PageSpeedChecker.vue';
+import SocialsContactsExtractor from './SocialsContactsExtractor.vue';
 
-export { PageSpeedAnalysisForm, SocialsContactsExtractionForm };
+export { PageSpeedChecker, SocialsContactsExtractor };
