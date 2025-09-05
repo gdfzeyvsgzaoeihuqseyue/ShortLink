@@ -15,7 +15,7 @@ export const usePageSpeedStore = defineStore('pageSpeed', () => {
 
     try {
       const response = await useApiFetch<{ success: boolean; message: string; data: PageSpeedResult }>(
-        '/shortlinks/get-pagespeed',
+        '/eqt/get-pagespeed',
         {
           method: 'POST',
           body: { url },

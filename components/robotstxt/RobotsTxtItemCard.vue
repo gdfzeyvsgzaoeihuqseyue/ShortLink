@@ -32,7 +32,7 @@ import { IconSitemap, IconCalendar } from '@tabler/icons-vue';
 import type { RobotsTxtConfig } from '@/types';
 
 const props = defineProps<{
-  config: Readonly<RobotsTxtConfig>; // <-- Typez la prop comme Readonly<RobotsTxtConfig>
+  config: Readonly<RobotsTxtConfig>; 
 }>();
 
 const emit = defineEmits(['delete']);

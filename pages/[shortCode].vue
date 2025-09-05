@@ -124,7 +124,7 @@ const performRedirect = () => {
   if (countdownInterval) clearInterval(countdownInterval);
 
   const config = useRuntimeConfig();
-  window.location.href = `${config.public.pgsBaseAPI}/shortlinks/redirect/${shortCode}`;
+  window.location.href = `${config.public.pgsBaseAPI}/eqt/redirect/${shortCode}`;
 };
 
 // Fonction pour annuler la redirection

@@ -20,7 +20,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<GetRobotsTxtsResponse>('/shortlinks/robottxt', {
+      const response = await useApiFetch<GetRobotsTxtsResponse>('/eqt/robottxt', {
         params: { page, limit },
       });
       robotsTxtConfigs.value = response.data; // Assigner des données mutables
@@ -42,7 +42,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<GetRobotsTxtResponse>(`/shortlinks/robottxt/${id}`);
+      const response = await useApiFetch<GetRobotsTxtResponse>(`/eqt/robottxt/${id}`);
       currentRobotsTxtConfig.value = response.data; 
       return response.data;
     } catch (err: any) {
@@ -58,7 +58,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<UpdateRobotsTxtResponse>(`/shortlinks/robottxt/${id}`, {
+      const response = await useApiFetch<UpdateRobotsTxtResponse>(`/eqt/robottxt/${id}`, {
         method: 'PUT',
         body: payload,
       });
@@ -84,7 +84,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     loading.value = true;
     error.value = null;
     try {
-      await useApiFetch<DeleteRobotsTxtResponse>(`/shortlinks/robottxt/${id}`, {
+      await useApiFetch<DeleteRobotsTxtResponse>(`/eqt/robottxt/${id}`, {
         method: 'DELETE',
       });
       // Supprimer de la liste
@@ -107,7 +107,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<GenerateRobotsTxtResponse>('/shortlinks/robottxt', {
+      const response = await useApiFetch<GenerateRobotsTxtResponse>('/eqt/robottxt', {
         method: 'POST',
         body: payload,
       });
@@ -128,7 +128,7 @@ export const useRobotsTxtStore = defineStore('robotstxt', () => {
     error.value = null;
     try {
       const params = sitemapUrl ? { sitemapUrl } : {};
-      const response = await $fetch<string>('/shortlinks/robotstxt-serve', {
+      const response = await $fetch<string>('/eqt/robotstxt-serve', {
         baseURL: useRuntimeConfig().public.pgsBaseAPI, 
         params,
         responseType: 'text', // Réponse texte

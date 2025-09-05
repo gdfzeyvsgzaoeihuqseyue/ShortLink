@@ -56,7 +56,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
     socket.on('sitemapProgress', progressListener);
 
     try {
-      const response = await useApiFetch<GenerateSitemapResponse>('/shortlinks/sitemap', {
+      const response = await useApiFetch<GenerateSitemapResponse>('/eqt/sitemap', {
         method: 'POST',
         body: { ...options, socketId },
       });
@@ -81,7 +81,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<GetSitemapsResponse>('/shortlinks/sitemap', {
+      const response = await useApiFetch<GetSitemapsResponse>('/eqt/sitemap', {
         params: { page, limit },
       });
       sitemaps.value = response.data;
@@ -103,7 +103,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<GetSitemapResponse>(`/shortlinks/sitemap/${id}`);
+      const response = await useApiFetch<GetSitemapResponse>(`/eqt/sitemap/${id}`);
       currentSitemap.value = response.data;
       return response.data;
     } catch (err: any) {
@@ -119,7 +119,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await useApiFetch<UpdateSitemapResponse>(`/shortlinks/sitemap/${id}`, {
+      const response = await useApiFetch<UpdateSitemapResponse>(`/eqt/sitemap/${id}`, {
         method: 'PUT',
         body: { title },
       });
@@ -144,7 +144,7 @@ export const useSitemapStore = defineStore('sitemap', () => {
     loading.value = true;
     error.value = null;
     try {
-      await useApiFetch<DeleteSitemapResponse>(`/shortlinks/sitemap/${id}`, {
+      await useApiFetch<DeleteSitemapResponse>(`/eqt/sitemap/${id}`, {
         method: 'DELETE',
       });
       sitemaps.value = sitemaps.value.filter(s => s.id !== id);

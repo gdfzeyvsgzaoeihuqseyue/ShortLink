@@ -20,6 +20,18 @@
         ]">
           Analyse PageSpeed
         </button>
+        <button @click="activeTab = 'metadata'" :class="[
+          'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          activeTab === 'metadata' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+        ]">
+          Extraction de métadonnées
+        </button>
+        <button @click="activeTab = 'pagePreview'" :class="[
+          'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+          activeTab === 'pagePreview' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+        ]">
+          Aperçu de page
+        </button>
       </div>
 
       <!-- Onglets -->
@@ -33,6 +45,16 @@
         <div v-else-if="activeTab === 'pageSpeed'" class="card p-6">
           <PageSpeedChecker />
         </div>
+
+        <!-- Section Extraction de métadonnées -->
+        <div v-else-if="activeTab === 'metadata'" class="card p-6">
+          <MetadataExtractor />
+        </div>
+
+        <!-- Section Aperçu de page -->
+        <div v-else-if="activeTab === 'pagePreview'" class="card p-6">
+          <PagePreview />
+        </div>
       </div>
     </div>
   </div>
@@ -40,7 +62,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { SocialsContactsExtractor, PageSpeedChecker } from '@/components/more';
+import { SocialsContactsExtractor, PageSpeedChecker, MetadataExtractor, PagePreview } from '@/components/more';
 
 definePageMeta({
   layout: 'dashboard',

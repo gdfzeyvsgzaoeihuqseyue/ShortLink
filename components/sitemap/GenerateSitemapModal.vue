@@ -184,7 +184,7 @@ const form = reactive<SitemapGenerationOptions>({
   followRobotsTxt: true,
   ignoreNoindex: true,
   ignoreNofollow: false,
-  ignoreNonCanonical: true,
+  ignoreNonCanonical: false,
   includeImages: false,
 });
 

@@ -25,7 +25,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<CreateLinkResponse>('/shortlinks', {
+      const response = await useApiFetch<CreateLinkResponse>('/link/eqt', {
         method: 'POST',
         body: { longUrl, alias } 
       });
@@ -58,7 +58,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetLinksResponse>('/shortlinks', {
+      const response = await useApiFetch<GetLinksResponse>('/link/eqt', {
         params: { page, limit }
       })
 
@@ -82,7 +82,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetLinkResponse>(`/shortlinks/${identifier}`);
+      const response = await useApiFetch<GetLinkResponse>(`/link/eqt/${identifier}`);
 
       currentLink.value = response.data
       return response.data
@@ -106,7 +106,7 @@ export const useLinksStore = defineStore('links', () => {
     metadataError.value = ''
 
     try {
-      const response = await useApiFetch<ExtractMetadataResponse>('/shortlinks/get-metadata', {
+      const response = await useApiFetch<ExtractMetadataResponse>('/eqt/get-metadata', {
         params: { url }
       });
 
@@ -130,7 +130,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<UpdateLinkResponse>(`/shortlinks/${id}`, {
+      const response = await useApiFetch<UpdateLinkResponse>(`/link/eqt/${id}`, {
         method: 'PUT',
         body: { longUrl }
       });
@@ -173,7 +173,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      await useApiFetch<DeleteLinkResponse>(`/shortlinks/${id}`, {
+      await useApiFetch<DeleteLinkResponse>(`/link/eqt/${id}`, {
         method: 'DELETE'
       });
 
@@ -227,7 +227,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<{ success: boolean; message: string; data: ShortLink }>(`/shortlinks/${id}/disable`, {
+      const response = await useApiFetch<{ success: boolean; message: string; data: ShortLink }>(`/link/eqt/${id}/disable`, {
         method: 'PUT',
         body: { disable }
       });

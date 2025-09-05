@@ -83,203 +83,19 @@
       <!-- Récents -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <!-- Liens récents -->
-        <div class="card p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">Liens récents</h2>
-            <div class="flex gap-2">
-              <button @click="openCreateLinkModal" class="flex items-center btn-primary text-sm px-3 py-2">
-                <IconPlus class="w-4 h-4 mr-1" />
-                Nouveau
-              </button>
-              <NuxtLink to="/db/links" class="btn-secondary text-sm px-3 py-2">
-                <IconClearAll class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-          </div>
-
-          <div v-if="linksStore.loading" class="text-center py-8">
-            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
-          </div>
-          <div v-else-if="recentLinks.length === 0" class="text-center py-8">
-            <IconLink class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p class="text-gray-500 mb-4">Aucun lien créé</p>
-            <button @click="openCreateLinkModal" class="btn-primary text-sm">
-              Créer mon premier lien
-            </button>
-          </div>
-          <div v-else class="space-y-3">
-            <div v-for="link in recentLinks" :key="link.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div class="flex-1 min-w-0">
-                <NuxtLink :to="`/db/links/${link.id}`"
-                  class="text-sm font-medium text-gray-900 hover:underline truncate block" :title="link.longUrl">
-                  {{ truncateWord(link.longUrl, 40) }}
-                </NuxtLink>
-                <div class="flex items-center space-x-4 mt-1">
-                  <span class="text-xs text-primary-600">{{ link.shortCode }}</span>
-                  <span class="text-xs text-gray-500">{{ link.clicks || 0 }} clics</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(link.createdAt) }}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button @click="copyLink(link.shortLink)" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconCopy class="w-4 h-4" />
-                </button>
-                <NuxtLink :to="`/db/links/${link.id}`" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconExternalLink class="w-4 h-4" />
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecentsLinks @open-create-link-modal="openCreateLinkModal"
+          @show-floating-notification="showFloatingNotification" />
 
         <!-- QR Codes récents -->
-        <div class="card p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">QR Codes récents</h2>
-            <div class="flex gap-2">
-              <NuxtLink to="/db/qrcode/create" class="flex items-center btn-primary text-sm px-3 py-2">
-                <IconPlus class="w-4 h-4 mr-1" />
-                Nouveau
-              </NuxtLink>
-              <button @click="fetchQRCodes" class="btn-secondary text-sm px-3 py-2">
-                <IconRefresh class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div v-if="qrCodesLoading" class="text-center py-8">
-            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
-          </div>
-          <div v-else-if="recentQRCodes.length === 0" class="text-center py-8">
-            <IconQrcode class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p class="text-gray-500 mb-4">Aucun QR Code créé</p>
-            <NuxtLink to="/db/qrcode/create" class="btn-primary text-sm">
-              Créer un QR Code
-            </NuxtLink>
-          </div>
-          <div v-else class="space-y-3">
-            <div v-for="qrCode in recentQRCodes" :key="qrCode.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div class="flex items-center space-x-3 min-w-0">
-                <div class="w-10 h-10 bg-white rounded-lg p-1 border flex-shrink-0">
-                  <img :src="qrCode.qrCodeBase64" alt="QR Code" class="w-full h-full object-contain" />
-                </div>
-                <div class="flex-1 min-w-0 overflow-hidden">
-                  <p class="text-sm font-medium text-gray-900 truncate" :title="qrCode.title">
-                    {{ truncateWord(qrCode.title, 40) }}
-                  </p>
-                  <div class="flex items-center space-x-4 mt-1">
-                    <span class="text-xs text-gray-500">{{ qrCode.qrCodeType }}</span>
-                    <span class="text-xs text-gray-500">{{ formatDate(qrCode.createdAt) }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2 flex-shrink-0">
-                <button @click="downloadQRCode(qrCode)" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconDownload class="w-4 h-4" />
-                </button>
-                <NuxtLink :to="`/db/qrcode/${qrCode.id}`" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconExternalLink class="w-4 h-4" />
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecentsQrCode @show-floating-notification="showFloatingNotification" />
 
         <!-- Sitemaps récents -->
-        <div class="card p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">Sitemaps récents</h2>
-            <div class="flex gap-2">
-              <button @click="openGenerateSitemapModal" class="flex items-center btn-primary text-sm px-3 py-2">
-                <IconPlus class="w-4 h-4 mr-1" />
-                Nouveau
-              </button>
-              <button @click="refreshSitemaps" class="btn-secondary text-sm px-3 py-2">
-                <IconRefresh class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div v-if="sitemapStore.loading" class="text-center py-8">
-            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
-          </div>
-          <div v-else-if="recentSitemaps.length === 0" class="text-center py-8">
-            <IconSitemap class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p class="text-gray-500 mb-4">Aucun Sitemap créé</p>
-            <button @click="openGenerateSitemapModal" class="btn-primary text-sm">
-              Générer un Sitemap
-            </button>
-          </div>
-          <div v-else class="space-y-3">
-            <div v-for="sitemap in recentSitemaps" :key="sitemap.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div class="flex-1 min-w-0">
-                <NuxtLink :to="`/db/sitemap/${sitemap.id}`"
-                  class="text-sm font-medium text-gray-900 hover:underline truncate block" :title="sitemap.title || sitemap.url">
-                  {{ truncateWord(sitemap.title || sitemap.url, 40) }}
-                </NuxtLink>
-                <div class="flex items-center space-x-4 mt-1">
-                  <span class="text-xs text-gray-500">{{ sitemap.urlsCount }} URLs</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(sitemap.lastGenerated) }}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2 flex-shrink-0">
-                <NuxtLink :to="`/db/sitemap/${sitemap.id}`" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconExternalLink class="w-4 h-4" />
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecentsSitemap @open-generate-sitemap-modal="openGenerateSitemapModal"
+          @show-floating-notification="showFloatingNotification" />
 
         <!-- Robots.txt récents -->
-        <div class="card p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">Robots.txt récents</h2>
-            <div class="flex gap-2">
-              <button @click="openGenerateRobotsTxtModal" class="flex items-center btn-primary text-sm px-3 py-2">
-                <IconPlus class="w-4 h-4 mr-1" />
-                Nouveau
-              </button>
-              <button @click="refreshRobotsTxtConfigs" class="btn-secondary text-sm px-3 py-2">
-                <IconRefresh class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div v-if="robotsTxtStore.loading" class="text-center py-8">
-            <IconLoader class="animate-spin w-6 h-6 text-primary-600 mx-auto" />
-          </div>
-          <div v-else-if="recentRobotsTxtConfigs.length === 0" class="text-center py-8">
-            <IconFileText class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p class="text-gray-500 mb-4">Aucune configuration robots.txt créée</p>
-            <button @click="openGenerateRobotsTxtModal" class="btn-primary text-sm">
-              Générer un robots.txt
-            </button>
-          </div>
-          <div v-else class="space-y-3">
-            <div v-for="config in recentRobotsTxtConfigs" :key="config.id"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div class="flex-1 min-w-0">
-                <NuxtLink :to="`/db/robotstxt/${config.id}`"
-                  class="text-sm font-medium text-gray-900 hover:underline truncate block" :title="config.title">
-                  {{ truncateWord(config.title, 40) }}
-                </NuxtLink>
-                <div class="flex items-center space-x-4 mt-1">
-                  <span class="text-xs text-gray-500">User-agents: {{ Object.keys(config.userAgents).join(', ') }}</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(config.lastGenerated) }}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2 flex-shrink-0">
-                <NuxtLink :to="`/db/robotstxt/${config.id}`" class="text-gray-400 hover:text-primary-600 p-1">
-                  <IconExternalLink class="w-4 h-4" />
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecentsRobottxt @open-generate-robots-txt-modal="openGenerateRobotsTxtModal"
+          @show-floating-notification="showFloatingNotification" />
       </div>
 
       <!-- Actions rapides -->
@@ -317,7 +133,7 @@
               <p class="text-sm font-medium text-gray-700">Gérer Robots.txt</p>
             </div>
           </button>
-          
+
           <NuxtLink to="/db/analytics"
             class="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors">
             <div class="text-center">
@@ -335,11 +151,11 @@
     <CreateLinkModal :visible="showCreateLinkModal" @close="closeCreateLinkModal"
       @link-created="handleLinkCreatedAndRefresh" />
 
-    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading" :error="sitemapStore.error"
-      @submit="handleGenerateSitemap" @cancel="closeGenerateSitemapModal" />
+    <GenerateSitemapModal :visible="showGenerateSitemapModal" :loading="sitemapStore.loading"
+      :error="sitemapStore.error" @submit="handleGenerateSitemap" @cancel="closeGenerateSitemapModal" />
 
-    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading" :error="robotsTxtStore.error"
-      @submit="handleGenerateRobotsTxt" @cancel="closeGenerateRobotsTxtModal" />
+    <GenerateRobotsTxtModal :visible="showGenerateRobotsTxtModal" :loading="robotsTxtStore.loading"
+      :error="robotsTxtStore.error" @submit="handleGenerateRobotsTxt" @cancel="closeGenerateRobotsTxtModal" />
   </div>
 </template>
 
@@ -349,29 +165,15 @@ import { useLinksStore } from '~/stores/links';
 import { useQRCodeStore } from '~/stores/qrcode';
 import { useSitemapStore } from '~/stores/sitemap';
 import { useRobotsTxtStore } from '~/stores/robotstxt';
-import type { ShortLink, SitemapGenerationOptions, GenerateSitemapResponse, GenerateRobotsTxtPayload, GenerateRobotsTxtResponse } from '~/types';
 import {
-  IconChartBar, IconClick, IconCopy, IconDownload, IconExternalLink, IconLink, IconLoader,
-  IconPlus, IconQrcode, IconRefresh, IconTrendingUp, IconClearAll, IconSitemap, IconFileText
+  IconChartBar, IconClick, IconFileText, IconLink, IconLoader,
+  IconPlus, IconQrcode, IconSitemap, IconTrendingUp
 } from '@tabler/icons-vue'
 import { CreateLinkModal } from '@/components/link'
-import { GenerateSitemapModal } from '@/components/sitemap'; 
-import { GenerateRobotsTxtModal } from '@/components/robotstxt'; 
-
-// Interface pour les QR Codes
-interface QRCode {
-  id: string;
-  title: string;
-  qrCodeBase64: string;
-  qrCodeType: string;
-  createdAt: string;
-}
-
-interface QRCodeResponse {
-  success: boolean;
-  message: string;
-  data: QRCode[];
-}
+import { GenerateSitemapModal } from '@/components/sitemap';
+import { GenerateRobotsTxtModal } from '@/components/robotstxt';
+import { RecentsLinks, RecentsQrCode, RecentsSitemap, RecentsRobottxt } from '@/components/dashboard';
+import type { SitemapGenerationOptions, GenerateSitemapResponse, GenerateRobotsTxtPayload, GenerateRobotsTxtResponse } from '~/types';
 
 definePageMeta({
   layout: 'dashboard'
@@ -381,18 +183,11 @@ const linksStore = useLinksStore();
 const qrStore = useQRCodeStore();
 const sitemapStore = useSitemapStore();
 const robotsTxtStore = useRobotsTxtStore();
-const recentQRCodes = ref<QRCode[]>([]);
-const qrCodesLoading = ref(false);
-const qrCodesError = ref('');
 
 // Modales
-const showEditModal = ref(false);
-const showDeleteModal = ref(false);
-const linkToEdit = ref<ShortLink | null>(null);
-const linkToDelete = ref<ShortLink | null>(null);
 const showCreateLinkModal = ref(false);
-const showGenerateSitemapModal = ref(false); 
-const showGenerateRobotsTxtModal = ref(false); 
+const showGenerateSitemapModal = ref(false);
+const showGenerateRobotsTxtModal = ref(false);
 
 // Notifications
 const notificationMessage = ref('');
@@ -421,7 +216,7 @@ const closeNotification = () => {
   }
 };
 
-// Surveillance des erreurs
+// Surveillance des erreurs des stores
 watch(() => linksStore.error, (newError) => {
   if (newError) {
     showFloatingNotification(newError, 'error');
@@ -437,38 +232,27 @@ watch(() => robotsTxtStore.error, (newError) => {
     showFloatingNotification(newError, 'error');
   }
 });
-
-// Récupération des QR Codes
-const fetchQRCodes = async () => {
-  qrCodesLoading.value = true;
-  qrCodesError.value = '';
-
-  try {
-    const config = useRuntimeConfig();
-    const response = await $fetch<QRCodeResponse>(`${config.public.pgsBaseAPI}/shortlinks/qrcodes?limit=10`);
-    recentQRCodes.value = response.data || [];
-  } catch (err: any) {
-    console.error('Erreur lors de la récupération des QR codes:', err);
-    qrCodesError.value = 'Erreur lors du chargement des QR codes';
-  } finally {
-    qrCodesLoading.value = false;
+watch(() => qrStore.error, (newError) => {
+  if (newError) {
+    showFloatingNotification(newError, 'error');
   }
-};
+});
 
 // Montage du composant
 onMounted(async () => {
+  // Fetch initial data for dashboard stats
   await linksStore.fetchLinks();
-  await fetchQRCodes();
-  await sitemapStore.fetchSitemaps(); 
-  await robotsTxtStore.fetchRobotsTxtConfigs(); 
+  await qrStore.fetchQRCodes();
+  await sitemapStore.fetchSitemaps();
+  await robotsTxtStore.fetchRobotsTxtConfigs();
 });
 
 // Statistiques
 const totalLinks = computed(() => linksStore.pagination.totalLinks);
 const totalClicks = computed(() => linksStore.stats.totalClicks);
 const totalQRCodes = computed(() => qrStore.totalQRCodes);
-const totalSitemaps = computed(() => sitemapStore.pagination.totalSitemaps); 
-const totalRobotsTxtConfigs = computed(() => robotsTxtStore.pagination.totalConfigs); 
+const totalSitemaps = computed(() => sitemapStore.pagination.totalSitemaps);
+const totalRobotsTxtConfigs = computed(() => robotsTxtStore.pagination.totalConfigs);
 
 const monthlyClicks = computed(() => {
   const now = new Date();
@@ -481,31 +265,6 @@ const monthlyClicks = computed(() => {
     }
     return total;
   }, 0);
-});
-
-// Liens récents 
-const recentLinks = computed(() => {
-  return [...linksStore.links]
-    .sort((a, b) => {
-      const aTime = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
-      const bTime = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
-      return bTime - aTime;
-    })
-    .slice(0, 10);
-});
-
-// Sitemaps récents
-const recentSitemaps = computed(() => {
-  return [...sitemapStore.sitemaps]
-    .sort((a, b) => new Date(b.lastGenerated).getTime() - new Date(a.lastGenerated).getTime())
-    .slice(0, 10);
-});
-
-// Robots.txt récents
-const recentRobotsTxtConfigs = computed(() => {
-  return [...robotsTxtStore.robotsTxtConfigs]
-    .sort((a, b) => new Date(b.lastGenerated).getTime() - new Date(a.lastGenerated).getTime())
-    .slice(0, 10);
 });
 
 // Actions sur les modales
@@ -522,56 +281,10 @@ const handleLinkCreatedAndRefresh = async () => {
   await linksStore.fetchLinks();
 };
 
-// Fonctions utilitaires
-const formatDate = (dateString: string | number) => {
-  const date = typeof dateString === 'number' ? new Date(dateString) : new Date(dateString);
-  return date.toLocaleDateString('fr-FR');
-};
-
-const truncateWord = (url: string, maxLength: number) => {
-  return url.length > maxLength ? url.substring(0, maxLength) + '...' : url;
-};
-
-// Actions sur les liens
-const copyLink = async (url: string) => {
-  try {
-    await navigator.clipboard.writeText(url);
-    showFloatingNotification('Lien copié !', 'success');
-  } catch (err) {
-    console.error('Erreur lors de la copie:', err);
-    showFloatingNotification('Impossible de copier le lien.', 'error');
-  }
-};
-
-// Actions sur les QR Codes
-const downloadQRCode = (qrCode: QRCode) => {
-  const link = document.createElement('a');
-  link.href = qrCode.qrCodeBase64;
-  link.download = `${qrCode.title || 'qrcode'}.png`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-// Fonctions d'actualisation
-const refreshSitemaps = async () => {
-  await sitemapStore.fetchSitemaps();
-  if (!sitemapStore.error) {
-    showFloatingNotification('Liste des sitemaps actualisée !', 'success');
-  }
-};
-
-const refreshRobotsTxtConfigs = async () => {
-  await robotsTxtStore.fetchRobotsTxtConfigs();
-  if (!robotsTxtStore.error) {
-    showFloatingNotification('Liste des configurations robots.txt actualisée !', 'success');
-  }
-};
-
 // Fonctions pour la modale Sitemap
 const openGenerateSitemapModal = () => {
   showGenerateSitemapModal.value = true;
-  sitemapStore.clearError(); 
+  sitemapStore.clearError();
 };
 
 const closeGenerateSitemapModal = () => {
@@ -591,7 +304,7 @@ const handleGenerateSitemap = async (options: SitemapGenerationOptions) => {
 // Fonctions pour la modale Robots.txt
 const openGenerateRobotsTxtModal = () => {
   showGenerateRobotsTxtModal.value = true;
-  robotsTxtStore.clearError(); 
+  robotsTxtStore.clearError();
 };
 
 const closeGenerateRobotsTxtModal = () => {

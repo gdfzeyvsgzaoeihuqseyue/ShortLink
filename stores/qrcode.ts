@@ -94,7 +94,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetQRCodesResponse>('/shortlinks/qrcodes', {
+      const response = await useApiFetch<GetQRCodesResponse>('/eqt/qrcodes', {
         params: { page, limit }
       })
 
@@ -120,7 +120,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
     try {
       if (download) {
         // Pour télécharger le fichier binaire
-        const response = await fetch(`${config.public.pgsBaseAPI}/shortlinks/qrcode/${id}?download=true`)
+        const response = await fetch(`${config.public.pgsBaseAPI}/eqt/qrcode/${id}?download=true`)
         if (!response.ok) {
           throw new Error('Erreur lors du téléchargement')
         }
@@ -139,7 +139,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
         return null
       } else {
         // Pour récupérer les données JSON
-        const response = await useApiFetch<GetQRCodeResponse>(`/shortlinks/qrcode/${id}`, {
+        const response = await useApiFetch<GetQRCodeResponse>(`/eqt/qrcode/${id}`, {
           params: { download: false }
         })
 
@@ -166,7 +166,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<UpdateQRCodeResponse>(`/shortlinks/qrcode/${id}`, {
+      const response = await useApiFetch<UpdateQRCodeResponse>(`/eqt/qrcode/${id}`, {
         method: 'PUT',
         body: options
       })
@@ -207,7 +207,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
     error.value = ''
 
     try {
-      await useApiFetch<DeleteQRCodeResponse>(`/shortlinks/qrcode/${id}`, {
+      await useApiFetch<DeleteQRCodeResponse>(`/eqt/qrcode/${id}`, {
         method: 'DELETE'
       })
 
@@ -260,7 +260,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
       if (options.signatureFontSize) params.append('signatureFontSize', options.signatureFontSize.toString())
 
       const baseUrl = config.public.pgsBaseAPI
-      const url = `${baseUrl}/shortlinks/${linkId}/qrcode?${params.toString()}`
+      const url = `${baseUrl}/eqt/${linkId}/qrcode?${params.toString()}`
 
       // Créer FormData si un logo est fourni
       let requestOptions: RequestInit = {
@@ -325,7 +325,7 @@ export const useQRCodeStore = defineStore('qrcode', () => {
     
     try {
       const baseUrl = config.public.pgsBaseAPI
-      const endpoint = `${baseUrl}/shortlinks/qrcode`
+      const endpoint = `${baseUrl}/eqt/qrcode`
 
       // Préparer les données
       const formData = new FormData()

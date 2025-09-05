@@ -3,17 +3,17 @@
     <h3 class="text-xl font-bold text-gray-900 mb-6">Générer un QR Code</h3>
 
     <div class="flex bg-gray-100 rounded-lg p-1 mb-6">
-      <button @click="mode = 'url'" :class="[
-        'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
-        mode === 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-      ]">
-        À partir d'une URL
-      </button>
       <button @click="mode = 'link'" :class="[
         'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
         mode === 'link' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
       ]">
         À partir d'un lien court
+      </button>
+      <button @click="mode = 'url'" :class="[
+        'flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors',
+        mode === 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+      ]">
+        À partir d'une URL
       </button>
     </div>
 
@@ -168,15 +168,9 @@
       <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
         <div class="flex-1 text-center">
           <div class="inline-block p-4 bg-white rounded-lg shadow-sm max-w-full">
-            <img 
-              v-if="qrStore.qrCodeUrl" 
-              :src="qrStore.qrCodeUrl" 
-              alt="QR Code généré" 
-              class="max-w-full h-auto mx-auto"
-              style="max-width: 300px; width: 100%;"
-              @error="handleImageError"
-              @load="handleImageLoad"
-            />
+            <img v-if="qrStore.qrCodeUrl" :src="qrStore.qrCodeUrl" alt="QR Code généré"
+              class="max-w-full h-auto mx-auto" style="max-width: 300px; width: 100%;" @error="handleImageError"
+              @load="handleImageLoad" />
             <div v-else class="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
               <IconLoader2 class="w-8 h-8 text-gray-400 animate-spin" />
             </div>
@@ -287,7 +281,7 @@ const generateQRCode = async () => {
   } else {
     await qrStore.generateQRCodeFromLink(selectedLinkId.value, options)
   }
-  
+
   // Debug: vérifier l'URL générée
   if (qrStore.qrCodeUrl) {
     console.log('QR Code URL générée:', qrStore.qrCodeUrl)

@@ -39,7 +39,7 @@ export const useSocialsContactsStore = defineStore('socialsContacts', () => {
 
     try {
       const response = await useApiFetch<{ success: boolean; message: string; data: ExtractionResult }>(
-        '/shortlinks/extract-socials',
+        '/eqt/extract-socials',
         {
           method: 'POST',
           body: { url, analyzeContactPage, analyzeAllPages, specificPages, socketId },

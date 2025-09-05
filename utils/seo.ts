@@ -25,7 +25,6 @@ export const useSeo = () => {
       return {
         index: {
           title: 'EasyQuickTrack',
-          description: "Votre solution complète pour le web. Raccourcissez vos URLs, générez des QR codes, analysez les métadonnées de pages, sitemaps, robots.txt et plus encore pour booster votre SEO.",
           ogImage: `${SHARED_URL}/SuitOps_Landing/Hero/index.png`,
           url: baseUrl,
           keywords: 'url, racourcie, diminuteur, Bénin, PGS, Pro Gestion Soft',

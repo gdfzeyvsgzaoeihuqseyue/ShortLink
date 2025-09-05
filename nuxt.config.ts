@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'EasyQuickTrack - Raccourcisseur d\'URL intelligent',
+      title: 'EasyQuickTrack - Votre solution complète pour le web. Raccourcissez vos URLs, générez des QR codes, analysez les métadonnées de pages, sitemaps, robots.txt et plus encore pour booster votre SEO.',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -52,7 +52,7 @@ export default defineNuxtConfig({
 
         // Open Graph (Facebook, LinkedIn)
         { property: 'og:title', content: 'EasyQuickTrack - Raccourcisseur d\'URL intelligent' },
-        { property: 'og:description', content: 'Raccourcissez vos liens facilement avec EasyQuickTrack, le raccourcisseur moderne et gratuit.' },
+        { property: 'og:description', content: 'Votre solution complète pour le web. Raccourcissez vos URLs, générez des QR codes, analysez les métadonnées de pages, sitemaps, robots.txt et plus encore pour booster votre SEO.' },
         { property: 'og:image', content: 'https://raw.githubusercontent.com/ProGestionSoft/Files/main/SuitOps_Landing/Hero/index.png' },
         { property: 'og:url', content: 'https://stlk.netlify.app' },
         { property: 'og:type', content: 'website' },
@@ -61,7 +61,7 @@ export default defineNuxtConfig({
         // Twitter Card
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'EasyQuickTrack - Raccourcisseur d\'URL intelligent' },
-        { name: 'twitter:description', content: 'Raccourcissez vos liens facilement avec EasyQuickTrack, le raccourcisseur moderne et gratuit.' },
+        { name: 'twitter:description', content: 'RVotre solution complète pour le web. Raccourcissez vos URLs, générez des QR codes, analysez les métadonnées de pages, sitemaps, robots.txt et plus encore pour booster votre SEO.' },
         { name: 'twitter:image', content: 'https://raw.githubusercontent.com/ProGestionSoft/Files/main/SuitOps_Landing/Hero/index.png' },
       ],
       link: [

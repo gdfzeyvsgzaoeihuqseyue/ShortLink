@@ -15,7 +15,7 @@ export const useLogsStore = defineStore('logs', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetLogsResponse>(`/shortlinks/${linkId}/logs`);
+      const response = await useApiFetch<GetLogsResponse>(`/link/eqt/${linkId}/logs`);
 
       logs.value = response.data
       linkDetails.value = response.linkDetails
