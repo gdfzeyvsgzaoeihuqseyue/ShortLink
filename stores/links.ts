@@ -25,7 +25,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<CreateLinkResponse>('/link/eqt', {
+      const response = await useApiFetch<CreateLinkResponse>('/eqt/link', {
         method: 'POST',
         body: { longUrl, alias } 
       });
@@ -58,7 +58,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetLinksResponse>('/link/eqt', {
+      const response = await useApiFetch<GetLinksResponse>('/eqt/link', {
         params: { page, limit }
       })
 
@@ -82,7 +82,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<GetLinkResponse>(`/link/eqt/${identifier}`);
+      const response = await useApiFetch<GetLinkResponse>(`/eqt/link/${identifier}`);
 
       currentLink.value = response.data
       return response.data
@@ -130,7 +130,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<UpdateLinkResponse>(`/link/eqt/${id}`, {
+      const response = await useApiFetch<UpdateLinkResponse>(`/eqt/link/${id}`, {
         method: 'PUT',
         body: { longUrl }
       });
@@ -173,7 +173,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      await useApiFetch<DeleteLinkResponse>(`/link/eqt/${id}`, {
+      await useApiFetch<DeleteLinkResponse>(`/eqt/link/${id}`, {
         method: 'DELETE'
       });
 
@@ -227,7 +227,7 @@ export const useLinksStore = defineStore('links', () => {
     error.value = ''
 
     try {
-      const response = await useApiFetch<{ success: boolean; message: string; data: ShortLink }>(`/link/eqt/${id}/disable`, {
+      const response = await useApiFetch<{ success: boolean; message: string; data: ShortLink }>(`/eqt/link/${id}/disable`, {
         method: 'PUT',
         body: { disable }
       });

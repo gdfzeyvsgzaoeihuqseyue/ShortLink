@@ -28,7 +28,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
 
       const fetchPromises = linksStore.links.map(async (link) => {
         try {
-          const response = await useApiFetch<GetLinkWithAnalyticsResponse>(`/link/eqt/${link.id}`);
+          const response = await useApiFetch<GetLinkWithAnalyticsResponse>(`/eqt/link/${link.id}`);
 
           const analytics = (response.data.analytics || []).map((a: ShortLinkAnalytics) => ({
             ...a,
@@ -60,7 +60,7 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     currentLinkAnalytics.value = [];
 
     try {
-      const response = await useApiFetch<GetLinkWithAnalyticsResponse>(`/link/eqt/${linkId}`);
+      const response = await useApiFetch<GetLinkWithAnalyticsResponse>(`/eqt/link/${linkId}`);
 
       // Correction: accès correct aux analytics
       currentLinkAnalytics.value = (response.data.analytics || []).map((a: ShortLinkAnalytics) => ({

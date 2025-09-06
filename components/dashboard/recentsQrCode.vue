@@ -31,9 +31,9 @@
             <img :src="qrCode.qrCodeBase64" alt="QR Code" class="w-full h-full object-contain" />
           </div>
           <div class="flex-1 min-w-0 overflow-hidden">
-            <p class="text-sm font-medium text-gray-900 truncate" :title="qrCode.title">
+            <NuxtLink :to="`/db/qrcode/${qrCode.id}`" class="text-sm font-medium text-gray-900 hover:underline truncate" :title="qrCode.title">
               {{ truncateWord(qrCode.title, 40) }}
-            </p>
+            </NuxtLink>
             <div class="flex items-center space-x-4 mt-1">
               <span class="text-xs text-gray-500">{{ qrCode.qrCodeType }}</span>
               <span class="text-xs text-gray-500">{{ formatDate(qrCode.createdAt) }}</span>

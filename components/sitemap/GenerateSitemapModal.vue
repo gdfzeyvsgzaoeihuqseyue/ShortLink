@@ -2,7 +2,7 @@
   <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-auto max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-gray-900">Générer un nouveau Sitemap</h3>
+        <h3 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Modifier le Sitemap' : 'Générer un nouveau Sitemap' }}</h3>
         <button @click="$emit('cancel')" class="text-gray-400 hover:text-gray-600">
           <IconX class="w-6 h-6" />
         </button>
@@ -13,7 +13,7 @@
           <label for="url" class="block text-sm font-medium text-gray-700 mb-2">URL du site à analyser <span class="text-red-500">*</span></label>
           <input id="url" v-model="form.url" type="url" required
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            :disabled="sitemapStore.sitemapProgressLoading" placeholder="https://example.com" />
+            :disabled="sitemapStore.sitemapProgressLoading || isEditMode" placeholder="https://example.com" />
         </div>
 
         <div>
@@ -102,9 +102,9 @@
           <button type="submit" :disabled="sitemapStore.sitemapProgressLoading" class="flex-1 btn-primary disabled:opacity-50">
             <span v-if="sitemapStore.sitemapProgressLoading" class="flex items-center justify-center">
               <IconLoader2 class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-              Génération en cours...
+              {{ isEditMode ? 'Mise à jour...' : 'Génération en cours...' }}
             </span>
-            <span v-else>Générer le Sitemap</span>
+            <span v-else>{{ isEditMode ? 'Mettre à jour' : 'Générer' }}</span>
           </button>
           <button type="button" @click="$emit('cancel')" class="flex-1 btn-secondary" :disabled="sitemapStore.sitemapProgressLoading">
             Annuler
@@ -152,9 +152,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { IconX, IconChevronRight, IconLoader2 } from '@tabler/icons-vue';
-import type { SitemapGenerationOptions, SitemapProgressMessage } from '@/types';
+import type { SitemapGenerationOptions, ShortLinkSitemap } from '@/types'; 
 import { useSitemapStore } from '~/stores/sitemap';
 
 const props = defineProps<{
@@ -162,16 +162,18 @@ const props = defineProps<{
   loading?: boolean;
   error?: string | null; 
   initialUrl?: string; 
+  initialSitemap?: ShortLinkSitemap | null;
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit', options: SitemapGenerationOptions): void;
+  (e: 'submit', options: SitemapGenerationOptions, sitemapId: string | null): void;
   (e: 'cancel'): void;
 }>();
 
 const sitemapStore = useSitemapStore();
 
 const showAdvanced = ref(false);
+const isEditMode = computed(() => !!props.initialSitemap); 
 
 const form = reactive<SitemapGenerationOptions>({
   url: '',
@@ -191,25 +193,30 @@ const form = reactive<SitemapGenerationOptions>({
 watch(() => props.visible, (newVal) => {
   if (newVal) {
     sitemapStore.clearProgress();
-    Object.assign(form, {
-      url: props.initialUrl || '',
-      title: '',
-      includePriority: true,
-      includeLastmod: false,
-      includeChangefreq: true,
-      changefreq: 'weekly',
-      maxPages: 0,
-      followRobotsTxt: true,
-      ignoreNoindex: true,
-      ignoreNofollow: false,
-      ignoreNonCanonical: true,
-      includeImages: false,
-    });
+    if (props.initialSitemap) {
+      form.url = props.initialSitemap.url;
+      form.title = props.initialSitemap.title || '';
+    } else {
+      Object.assign(form, {
+        url: props.initialUrl || '',
+        title: '',
+        includePriority: true,
+        includeLastmod: false,
+        includeChangefreq: true,
+        changefreq: 'weekly',
+        maxPages: 0,
+        followRobotsTxt: true,
+        ignoreNoindex: true,
+        ignoreNofollow: false,
+        ignoreNonCanonical: true,
+        includeImages: false,
+      });
+    }
     showAdvanced.value = false; 
   }
 });
 
 const onSubmit = () => {
-  emit('submit', { ...form });
+  emit('submit', { ...form }, props.initialSitemap?.id || null);
 };
 </script>

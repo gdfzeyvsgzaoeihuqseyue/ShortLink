@@ -175,6 +175,12 @@ export interface QRCodeResponse {
   url?: string;
 }
 
+export interface QRCodeRecord {
+  id: string;
+  title?: string;
+  qrCodeBase64: string;
+}
+
 // ===============================================
 // REDIRECTS
 // ===============================================
@@ -195,7 +201,7 @@ export interface UserAgentRules {
 
 export interface RobotsTxtConfig {
   id: string;
-  title: string;
+  title?: string;
   userAgents: { [key: string]: UserAgentRules };
   sitemapUrl?: string;
   customRules?: string;

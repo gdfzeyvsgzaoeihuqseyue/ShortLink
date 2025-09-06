@@ -7,5 +7,8 @@ import LinkHistoryCard from './LinkHistoryCard.vue'
 import LinkMetadataCard from './LinkMetadataCard.vue'
 import LinkInfoCard from './LinkInfoCard.vue'
 import UrlShortener from './UrlShortener.vue'
+import AssociatedQrCode from './AssociatedQrCode.vue'
+import AssociatedSitemap from './AssociatedSitemap.vue'
+import AssociatedRobotsTxt from './AssociatedRobotsTxt.vue'
 
-export { BulkDeleteLinkModal, CreateLinkModal, DeleteLinkModal, EditLinkModal, LinkAnalyticsDetails, LinkHistoryCard, LinkInfoCard, LinkMetadataCard, UrlShortener }
+export { BulkDeleteLinkModal, CreateLinkModal, DeleteLinkModal, EditLinkModal, LinkAnalyticsDetails, LinkHistoryCard, LinkInfoCard, LinkMetadataCard, UrlShortener, AssociatedQrCode, AssociatedSitemap, AssociatedRobotsTxt }

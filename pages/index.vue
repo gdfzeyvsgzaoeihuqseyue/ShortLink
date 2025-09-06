@@ -11,14 +11,14 @@
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center max-w-4xl mx-auto">
           <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-8 leading-tight">
-            Raccourcissez vos liens
+            Votre boîte à outils web
             <span class="bg-gradient-to-r from-primary-600 to-success-500 bg-clip-text text-transparent">
-              intelligemment
+              complète
             </span>
           </h1>
           <p class="text-xl text-gray-800 mb-12 max-w-2xl mx-auto">
-            Transformez vos liens longs en liens courts mémorables et suivez leur performance en temps réel avec des
-            analyses détaillées.
+            Raccourcissez vos URLs, générez des QR codes, analysez les performances de vos pages, gérez vos sitemaps et
+            robots.txt, extrayez des contacts, et bien plus encore pour optimiser votre présence en ligne.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -26,8 +26,8 @@
               Commencer gratuitement
             </NuxtLink>
             <NuxtLink to="/contact" class="btn-secondary text-lg px-8 py-4">
-            Nous contacter
-          </NuxtLink>
+              Nous contacter
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ let intervalId = null;
 
 // Fonctions de gestion du compteur
 const startRandomCounting = () => {
-  if (intervalId) return; 
+  if (intervalId) return;
   intervalId = setInterval(() => {
     loadingCounters.value.links = Math.floor(Math.random() * 99);
     loadingCounters.value.clicks = Math.floor(Math.random() * 99);
