@@ -98,7 +98,7 @@
             <span v-if="!sidebarCollapsed || isMobile">Analytics</span>
           </NuxtLink>
 
-           <NuxtLink to="/db/more" :class="[
+          <NuxtLink to="/db/more" :class="[
             'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
             $route.path === '/db/more'
               ? 'bg-primary-100 text-primary-700'
@@ -177,6 +177,9 @@
         </div>
       </div>
 
+      <!-- Notifications -->
+      <SiteNotificationManager />
+
       <main class="flex-1 overflow-auto">
         <div class="p-6">
           <slot />
@@ -217,7 +220,7 @@ const pageTitle = computed(() => {
   if (path === '/db/analytics') return 'Analytics'
   if (path === '/db/sitemap') return 'Sitemap'
   if (path === '/db/robotstxt') return 'Robots.txt'
-    if (path === '/db/more') return 'Analyse avancés'
+  if (path === '/db/more') return 'Analyse avancés'
   if (path === '/db/settings') return 'Paramètres'
   return 'Dashboard'
 })
