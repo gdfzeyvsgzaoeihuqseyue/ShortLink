@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-textClr p-4">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-textClr p-4 font-body">
     <!-- Préférences -->
     <div class="mb-6">
       <prefSettings />
