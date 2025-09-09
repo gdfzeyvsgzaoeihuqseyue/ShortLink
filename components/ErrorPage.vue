@@ -1,40 +1,23 @@
 <template>
   <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-textClr p-4">
-    <!-- Préférences -->
-    <div class="mb-6">
-      <prefSettings />
-    </div>
-
-    <!-- Conteneur principal -->
     <div
       class="bg-white rounded-xl shadow-lg p-8 sm:p-10 md:p-12 max-w-5xl w-full flex flex-col md:flex-row gap-8 items-center">
+
       <!-- Colonne texte -->
       <div class="md:w-1/2 text-center md:text-left space-y-6">
-        <!-- Logos Desktop -->
-        <div class="flex-shrink-0 items-center justify-center mx-4 hidden lg:block">
-          <img :src="sharedFiles.paths.logo.dc" alt="EasyQuickTrack" class="h-14 mx-auto md:mx-0 dark:hidden" />
-          <img :src="sharedFiles.paths.logo.dw" alt="EasyQuickTrack" class="h-14 mx-auto md:mx-0 hidden dark:block" />
-        </div>
-
-        <!-- Logos Mobiles -->
-        <div class="sm:hidden flex-shrink-0 flex items-center mx-4 justify-center">
-          <img :src="sharedFiles.paths.logo.mc" alt="Logo" class="h-12 w-auto dark:hidden" />
-          <img :src="sharedFiles.paths.logo.mw" alt="Logo" class="h-12 w-auto hidden dark:block" />
-        </div>
-
-        <!-- Titre -->
-        <h1 class="text-7xl font-extrabold text-primary-600">404</h1>
+        <h1 :class="['text-7xl font-extrabold', statusColor]">
+          {{ error.statusCode }}
+        </h1>
         <h2 class="text-2xl sm:text-3xl font-semibold">
-          Oups ! Page introuvable
+          {{ error.title }}
         </h2>
         <p class="text-base sm:text-lg leading-relaxed">
-          Désolé, la page que vous recherchez semble s'être perdue dans l'espace numérique.
-          Il est possible qu'elle ait été déplacée, supprimée, ou que l'adresse soit incorrecte.
+          {{ error.message }}
         </p>
 
         <!-- Boutons -->
         <div class="flex flex-col sm:flex-row gap-4">
-          <NuxtLink :to="'/'"
+          <NuxtLink to="/"
             class="flex items-center justify-center px-6 py-3 bg-primary-600 text-white rounded-full shadow-md hover:bg-secondary-600 hover:scale-105 transition-transform duration-300">
             <IconHome class="w-5 h-5 mr-2" />
             Aller à l'accueil
@@ -89,50 +72,38 @@
 
       <!-- Colonne image -->
       <div class="md:w-1/2 flex justify-center">
-        <img :src="sharedFiles.paths.general.error404" alt="Erreur 404" class="w-full max-w-sm h-auto object-contain" />
+        <img :src="error.image" :alt="`Erreur ${error.statusCode}`" class="w-full max-w-sm h-auto object-contain" />
       </div>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer class="py-4 border-t bg-WtBAct">
-    <div class="flex flex-col md:flex-row justify-between items-center max-w-6xl mx-auto w-full gap-4 px-4">
-      <!-- Logos Desktop -->
-      <div class="flex-shrink-0 items-center justify-center mx-4 hidden lg:block">
-        <img :src="sharedFiles.paths.logo.dc" alt="Logo" class="h-12 w-auto dark:hidden" />
-        <img :src="sharedFiles.paths.logo.dw" alt="Logo" class="h-12 w-auto hidden dark:block" />
-      </div>
-
-      <!-- Logos Mobiles -->
-      <div class="sm:hidden flex-shrink-0 flex items-center mx-4">
-        <img :src="sharedFiles.paths.logo.mc" alt="Logo" class="h-12 w-auto dark:hidden" />
-        <img :src="sharedFiles.paths.logo.mw" alt="Logo" class="h-12 w-auto hidden dark:block" />
-      </div>
-
-      <div>
-        <p>© {{ new Date().getFullYear() }} EasyQuickTrack. Tous droits réservés.</p>
-      </div>
-
-      <!-- Liens sociaux -->
-      <ul role="list" class="flex justify-center sm:justify-start space-x-4">
-        <SocialLink />
-      </ul>
-    </div>
-  </footer>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { IconHome, IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
-import { useSharedFiles } from '~/stores/sharedFiles';
 
-const sharedFiles = useSharedFiles();
 const router = useRouter()
 
-// SEO
-usePageSeo('404')
+const props = defineProps({
+  error: {
+    type: Object,
+    required: true,
+  },
+})
 
-definePageMeta({
-  layout: false
+/**
+ * Détermine la couleur du code en fonction du type d'erreur
+ */
+const statusColor = computed(() => {
+  switch (props.error.statusCode) {
+    case 404:
+      return 'text-primary-600'
+    case 403:
+      return 'text-red-600'
+    case 500:
+      return 'text-yellow-600'
+    default:
+      return 'text-gray-600'
+  }
 })
 </script>
