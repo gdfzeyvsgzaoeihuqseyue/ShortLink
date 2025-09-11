@@ -23,9 +23,9 @@ export const useSharedFiles = defineStore('sharedFiles', () => {
       mw: `${SHARED_URL}/Logos/EQT-MW.png`,
     },
     general: {
-      error403: `${SHARED_URL}/General/403.png`,
-      error404: `${SHARED_URL}/General/404.png`,
-      error500: `${SHARED_URL}/General/500.png`,
+      error403: `${SHARED_URL}/General/Error403.png`,
+      error404: `${SHARED_URL}/General/Error404.png`,
+      error500: `${SHARED_URL}/General/Error500.png`,
     },
 
     //JSON
