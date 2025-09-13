@@ -1,16 +1,11 @@
 <template>
  <main class="font-body">
     <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-textClr p-4">
-      <!-- Préférences -->
-      <div class="mb-6">
-        <prefSettings />
-      </div>
-
       <ErrorPage :error="errorData" class="flex-grow" />
     </div>
 
     <!-- Footer -->
-    <footer class="py-4 border-t bg-WtBAct">
+    <footer class="py-4 border-t bg-WtBAct text-center">
       <div class="flex flex-col md:flex-row justify-between items-center max-w-6xl mx-auto w-full gap-4 px-4">
         <!-- Logos Desktop -->
         <div class="flex-shrink-0 items-center justify-center mx-4 hidden lg:block">
@@ -30,7 +25,7 @@
 
         <!-- Liens sociaux -->
         <ul role="list" class="flex justify-center sm:justify-start space-x-4">
-          <SocialLink />
+          <SocialCustomLink />
         </ul>
       </div>
     </footer>
@@ -55,7 +50,7 @@ const errorData = computed(() => {
 
   if (statusCode === 404) {
     title = "Oups ! Page introuvable"
-    message = "Désolé, la page que vous recherchez semble s'être perdue."
+    message = "Désolé, la page que vous recherchez semble s'être perdue dans l'espace numérique. Il est possible qu'elle ait été déplacée, supprimée, ou que l'adresse soit incorrecte."
     image = sharedFiles.paths.general.error404
   } else if (statusCode === 403) {
     title = "Accès interdit"
